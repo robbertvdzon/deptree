@@ -62,7 +62,7 @@ class ListDependenciesPlugin : AbstractMojo() {
         moduleDependency.packaging=project.packaging
         moduleDependency.deps=depList
 
-        val writer = YamlWriter(FileWriter("$filename.yml"))
+        val writer = YamlWriter(FileWriter("$filename"))
         writer.config.setClassTag("ModuleDependency", ModuleDependency::class.java)
         writer.write(moduleDependency)
         writer.close()
