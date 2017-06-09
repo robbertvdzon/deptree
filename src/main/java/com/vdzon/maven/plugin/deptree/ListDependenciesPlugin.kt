@@ -1,9 +1,8 @@
 package com.vdzon.maven.plugin.deptree
 
 
-import org.apache.maven.artifact.Artifact
+import com.esotericsoftware.yamlbeans.YamlWriter
 import org.apache.maven.execution.MavenSession
-import org.apache.maven.model.Dependency
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
 import org.apache.maven.plugin.MojoFailureException
@@ -15,13 +14,9 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.project.ProjectBuilder
 import org.apache.maven.project.ProjectBuildingException
 import org.apache.maven.repository.RepositorySystem
+import java.io.*
+import java.util.*
 
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.PrintWriter
-import java.io.UnsupportedEncodingException
-import java.util.ArrayList
-import java.util.Properties
 
 @Mojo(name = "build-dep-tree", defaultPhase = LifecyclePhase.PROCESS_SOURCES, aggregator = false)
 class ListDependenciesPlugin : AbstractMojo() {
@@ -54,29 +49,23 @@ class ListDependenciesPlugin : AbstractMojo() {
     @Throws(MojoExecutionException::class)
     private fun writeDeps(allDeps: List<String>) {
         File(workFolder!!).mkdirs()
-        val filename = workFolder + File.separator + project!!.groupId + "-" + project.artifactId + "-" + project.version +".deps"
-
-        var writer: PrintWriter? = null
-        try {
-            writer = PrintWriter(filename, "UTF-8")
-            writer.println(project.groupId)
-            writer.println(project.artifactId)
-            writer.println(project.version)
-            writer.println(project.basedir.absolutePath)
-            writer.println(project.packaging)
-            for (dep in allDeps) {
-                writer.println(dep)
-                if (print) {
-                    log.info(dep)
-                }
-            }
-            writer.close()
-        } catch (e: FileNotFoundException) {
-            throw MojoExecutionException("Eception writing dep file", e)
-        } catch (e2: UnsupportedEncodingException) {
-            throw MojoExecutionException("Eception writing dep file", e2)
+        val filename = workFolder + File.separator + project!!.groupId + "-" + project.artifactId + "-" + project.version + ".deps.yaml"
+        val depList = ArrayList<String>();
+        for (dep in allDeps) {
+            depList.add(dep)
         }
+        var moduleDependency = ModuleDependency()
+        moduleDependency.groupId=project.groupId
+        moduleDependency.artifactId=project.artifactId
+        moduleDependency.version=project.version
+        moduleDependency.absolutePath=project.basedir.absolutePath
+        moduleDependency.packaging=project.packaging
+        moduleDependency.deps=depList
 
+        val writer = YamlWriter(FileWriter("$filename.yml"))
+        writer.config.setClassTag("ModuleDependency", ModuleDependency::class.java)
+        writer.write(moduleDependency)
+        writer.close()
     }
 
     private fun processParentAndImportsRecursive(currentProject: MavenProject, allDeps: MutableList<String>) {

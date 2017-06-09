@@ -50,6 +50,11 @@
             <artifactId>plexus-utils</artifactId>
             <version>3.0.8</version>
         </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware.yamlbeans</groupId>
+            <artifactId>yamlbeans</artifactId>
+            <version>1.12</version>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
