@@ -1,4 +1,4 @@
-package com.vdzon.maven.plugin.deptree
+package com.vdzon.maven.plugin.deptree.model
 
 import java.util.ArrayList
 

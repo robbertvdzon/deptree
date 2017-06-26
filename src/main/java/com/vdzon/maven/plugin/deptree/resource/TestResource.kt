@@ -1,4 +1,4 @@
-package com.vdzon.maven.plugin.deptree
+package com.vdzon.maven.plugin.deptree.resource
 
 
 import javax.ws.rs.GET

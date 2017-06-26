@@ -15,7 +15,7 @@ import org.eclipse.jetty.util.resource.Resource
 
 
 @Mojo(name = "start")
-class KotlinMojo2 : AbstractMojo() {
+class StartPlugin : AbstractMojo() {
 
     @Parameter
     private val foo: String? = null
@@ -65,7 +65,7 @@ class KotlinMojo2 : AbstractMojo() {
         val pwdPath = System.getProperty("user.dir")
         context.resourceBase = pwdPath
         context.contextPath = "/"
-        val url = KotlinMojo2::class.java!!.getClassLoader().getResource("web/")
+        val url = StartPlugin::class.java!!.getClassLoader().getResource("web/")
         val webRootUri = url!!.toURI()
         context.setBaseResource(Resource.newResource(webRootUri));
     }

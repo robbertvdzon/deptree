@@ -2,6 +2,7 @@ package com.vdzon.maven.plugin.deptree
 
 
 import com.esotericsoftware.yamlbeans.YamlWriter
+import com.vdzon.maven.plugin.deptree.model.ModuleDependency
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
