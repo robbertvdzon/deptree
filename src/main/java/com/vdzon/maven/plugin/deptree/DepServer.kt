@@ -1,6 +1,13 @@
 package com.vdzon.maven.plugin.deptree
 
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModule
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleGroup
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleGroups
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleLayer
+import com.vdzon.maven.plugin.deptree.model.ModuleDependency
 import com.vdzon.maven.plugin.deptree.model.ModuleGroups
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
@@ -9,6 +16,9 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.util.resource.Resource
 import org.glassfish.jersey.servlet.ServletContainer
+import java.io.File
+import java.io.FileFilter
+
 //import org.slf4j.LoggerFactory
 
 fun main(args: Array<String>) {
@@ -17,7 +27,7 @@ fun main(args: Array<String>) {
 }
 
 class Log {
-    fun info(s:String):Unit {
+    fun info(s: String): Unit {
         println(s)
     }
 }
@@ -36,28 +46,70 @@ class DepServer {
         val yamlFilename = "groups.yaml"
         val moduleGroups: ModuleGroups = moduleGroupService.getExistsingOrNewModuleGroups(yamlFilename, moduleGroupService)
 
-        moduleGroups.moduleGroups.forEach {
-            it.layers.forEach {
-                it.modules.forEach {
-                    it.deps = listOf("test1:test1" , "test2:test2")
+        val enrichedModuleGroups: EnrichedModuleGroups = EnrichedModuleGroups(
+                moduleGroups.application,
+                moduleGroups.moduleGroups
+                        .map {
+                            EnrichedModuleGroup(
+                                    it.modulegroup,
+                                    null,
+                                    it.layers.map {
+                                        EnrichedModuleLayer(
+                                                it.name,
+                                                null,
+                                                it.modules.map {
+                                                    EnrichedModule(
+                                                            it.name
+                                                    )
+                                                }
+                                        )
+                                    })
+                        })
+        // add parents
+        enrichedModuleGroups.moduleGroups.forEach {
+            val moduleGroup = it
+            moduleGroup.modulegroups = enrichedModuleGroups
+            moduleGroup.layers.forEach {
+                val layer = it
+                layer.moduleGroup = moduleGroup
+                layer.modules.forEach {
+                    val module = it
+                    module.moduleLayer = layer
                 }
             }
         }
 
+        // place all modules in a map
+        val allModules = enrichedModuleGroups
+                .moduleGroups
+                .flatMap {
+                    it.layers.flatMap {
+                        it.modules.map {it}
+                    }
+                }
+                .associateBy ({ it.name}, {it })
 
-        moduleGroups.moduleGroups.forEach {
-            log.info(it.modulegroup)
-            it.layers.forEach {
-                log.info(" -" + it.name)
-                it.modules.forEach {
-                    log.info("  -" + it.name)
-                    it.deps.forEach {
-                        log.info("   -" + it)
+        // fill in all depTo
+        File("target").listFiles(FileFilter { it.name.endsWith("yaml") }).forEach {
+            val mapper = ObjectMapper(YAMLFactory())
+
+            val moduleDependency = mapper.readValue(it.readText(charset = Charsets.UTF_8), ModuleDependency::class.java)
+            val module = allModules.get("${moduleDependency.groupId}:${moduleDependency.artifactId}")
+            if (module!=null) {
+                moduleDependency.deps.forEach {
+                    val depModule = allModules.get(it)
+                    if (depModule!=null) {
+                        module.depsTo = module.depsTo.plus(depModule)
                     }
                 }
             }
         }
 
+        // fill in all depFrom
+        allModules.values.forEach {
+            val module = it
+            module.depsFrom = allModules.values.filter { it.depsTo.contains(module) }
+        }
 
         log.info("start server!!")
 
