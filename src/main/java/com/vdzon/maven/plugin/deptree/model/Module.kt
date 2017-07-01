@@ -1,5 +1,9 @@
 package com.vdzon.maven.plugin.deptree.model
 
-class Module (var name:String = ""){
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
+@JsonIgnoreProperties("deps")
+class Module (val name:String = "",
+              var deps: List<String> = listOf<String>()){
 
 }

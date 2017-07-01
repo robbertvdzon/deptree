@@ -1,8 +1,9 @@
 package com.vdzon.maven.plugin.deptree
 
 
-import com.esotericsoftware.yamlbeans.YamlWriter
-import com.vdzon.maven.plugin.deptree.model.ModuleDependency
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.vdzon.maven.plugin.deptree.model.*
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException
@@ -45,7 +46,47 @@ class ListDependenciesPlugin : AbstractMojo() {
         val allDeps = ArrayList<String>()
         processParentAndImportsRecursive(project!!, allDeps)
         writeDeps(allDeps)
+        updateModuleGroups()
     }
+
+    private fun updateModuleGroups() {
+        val moduleGroupService = ModuleGroupService()
+        val yamlFilename = "groups.yaml"
+        val moduleGroups: ModuleGroups = moduleGroupService.getExistsingOrNewModuleGroups(yamlFilename, moduleGroupService)
+        val moduleName = project!!.groupId + ":" + project.artifactId
+        val moduleExists = moduleGroups.moduleGroups.any { it.layers.any { it.modules.any { it.name == moduleName } } }
+        val modifiedGroupsObject = if (!moduleExists) addToUnknownGroup(moduleGroups, moduleName) else moduleGroups
+        writeModuleGroups(yamlFilename, moduleGroupService, modifiedGroupsObject)
+    }
+
+    private fun addToUnknownGroup(moduleGroups: ModuleGroups, moduleName: String): ModuleGroups {
+        val unknownGroupFound = moduleGroups.moduleGroups.find { it.modulegroup == "unknown" }
+        val unknownGroup = if (unknownGroupFound != null) unknownGroupFound else ModuleGroup("unknown")
+
+        val unknownLayersFound = unknownGroup.layers.find { it.name == "unknown" }
+        val unknownLayer = if (unknownLayersFound != null) unknownLayersFound else ModuleLayer("unknown")
+
+        val modifiedModules = unknownLayer.modules.toMutableList();
+        modifiedModules.filter { it.name == moduleName }.forEach { modifiedModules.remove(it) }
+        modifiedModules.add(Module(moduleName))
+        val modifiedLayer = ModuleLayer("unknown", modifiedModules);
+
+        val modifiedLayers = unknownGroup.layers.toMutableList();
+        modifiedLayers.filter { it.name == "unknown" }.forEach { modifiedLayers.remove(it) }
+        modifiedLayers.add(modifiedLayer)
+
+        val modifiedGroups = moduleGroups.moduleGroups.toMutableList();
+        modifiedGroups.filter { it.modulegroup == "unknown" }.forEach { modifiedGroups.remove(it) }
+        modifiedGroups.add(ModuleGroup("unknown", modifiedLayers))
+
+        val modifiedGroupsObject = ModuleGroups(moduleGroups.application, modifiedGroups);
+        return modifiedGroupsObject
+    }
+
+    private fun writeModuleGroups(yamlFilename: String, moduleGroupService: ModuleGroupService, moduleGroups : ModuleGroups) {
+        File(yamlFilename).writeText(moduleGroupService.serializeModuleGroups(moduleGroups), charset = Charsets.UTF_8)
+    }
+
 
     @Throws(MojoExecutionException::class)
     private fun writeDeps(allDeps: List<String>) {
@@ -63,10 +104,9 @@ class ListDependenciesPlugin : AbstractMojo() {
         moduleDependency.packaging=project.packaging
         moduleDependency.deps=depList
 
-        val writer = YamlWriter(FileWriter("$filename"))
-        writer.config.setClassTag("ModuleDependency", ModuleDependency::class.java)
-        writer.write(moduleDependency)
-        writer.close()
+        val mapper = ObjectMapper(YAMLFactory())
+        val yaml = mapper.writeValueAsString(moduleDependency)
+        File(filename).writeText(yaml, charset = Charsets.UTF_8)
     }
 
     private fun processParentAndImportsRecursive(currentProject: MavenProject, allDeps: MutableList<String>) {

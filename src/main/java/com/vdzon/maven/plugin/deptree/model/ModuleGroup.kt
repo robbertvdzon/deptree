@@ -1,8 +1,8 @@
 package com.vdzon.maven.plugin.deptree.model
 
 class ModuleGroup(
-        var name: String = "",
-        var layer: List<ModuleLayer> = listOf<ModuleLayer>()
+        var modulegroup: String = "",
+        var layers: List<ModuleLayer> = listOf<ModuleLayer>()
 ){
 }
 
