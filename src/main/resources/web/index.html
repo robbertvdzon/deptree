@@ -34,38 +34,39 @@ test:<a href="/rest/customers/1">link</a>
         var total = data.modules.length;
         var radius = 250;
         var offset = 300;
+
         for (i = 0; i < data.modules.length; i++) {
             var angle = (360/total)*i;
             var x = offset + radius * Math.cos(angle*Math.PI/180)
             var y = offset + radius * Math.sin(angle*Math.PI/180)
-            addCircle(x, y, data.modules[i].name);
+            data.modules[i].x = x;
+            data.modules[i].y = y;
+        }
+
+        var moduleMap = []
+        for (i = 0; i < data.modules.length; i++) {
+            moduleMap[data.modules[i].name] = data.modules[i]
         }
 
 
         defineArrow();
-        addCircle(100, "180", "rif.pom");
-        addCircle(240, "180", "rif.integratietests");
-        addCircle(100, "300", "rifsync.product");
-        addCircle(240, "300", "rif.product");
-        addCircle(100, "420", "rif.opslag");
-        addCircle(100, "540", "rif.sync");
-        addCircle(240, "540", "rif.domein");
-        addLine(240, "180", "240", "540");
-        addLine(240, "180", "100", "180");
-        addLine(240, "180", "100", "540");
-        addLine(240, "180", "100", "300");
-        addLine(240, "180", "240", "300");
-        addLine(100, "300", "100", "420");
-        addLine(100, "300", "100", "180");
-        addLine(100, "300", "100", "540");
-        addLine(240, "300", "100", "180");
-        addLine(240, "300", "100", "420");
-        addLine(100, "420", "240", "540");
-        addLine(100, "420", "100", "180");
-        addLine(100, "420", "100", "540");
-        addLine(100, "540", "240", "540");
-        addLine(100, "540", "100", "180");
-        addLine(240, "540", "100", "180");
+
+        for (i = 0; i < data.modules.length; i++) {
+            var module = data.modules[i];
+            addCircle(module.x, module.y, module.name);
+        }
+
+        for (i = 0; i < data.modules.length; i++) {
+            var module = data.modules[i];
+            for (j = 0; j < module.dep.length; j++) {
+                var depModule = moduleMap[module.dep[j]]
+                addLine(module.x, module.y, depModule.x, depModule.y);
+
+            }
+        }
+
+
+
 
     }
 
