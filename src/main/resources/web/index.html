@@ -19,9 +19,9 @@
 test:<a href="/rest/customers/1">link</a>
 <script>
 
-    $.ajax("/rest/graph", {
+    $.ajax("/rest/modulegroup/all", {
         success: function(data) {
-            load();
+            load(data);
         },
         error: function() {
         }
@@ -30,7 +30,17 @@ test:<a href="/rest/customers/1">link</a>
     var svg = createSvg();
 
 
-    function load() {
+    function load(data) {
+        var total = data.modules.length;
+        var radius = 250;
+        var offset = 300;
+        for (i = 0; i < data.modules.length; i++) {
+            var angle = (360/total)*i;
+            var x = offset + radius * Math.cos(angle*Math.PI/180)
+            var y = offset + radius * Math.sin(angle*Math.PI/180)
+            addCircle(x, y, data.modules[i].name);
+        }
+
 
         defineArrow();
         addCircle(100, "180", "rif.pom");
