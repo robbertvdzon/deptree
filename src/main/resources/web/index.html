@@ -31,10 +31,20 @@ test:<a href="/rest/customers/1">link</a>
 
 
     function load(data) {
+
+        defineArrow();
+
         var total = data.modules.length;
         var radius = 250;
         var offset = 300;
 
+        // create a map of all modules
+        var moduleMap = []
+        for (i = 0; i < data.modules.length; i++) {
+            moduleMap[data.modules[i].name] = data.modules[i]
+        }
+
+        // place all module in a circle
         for (i = 0; i < data.modules.length; i++) {
             var angle = (360/total)*i;
             var x = offset + radius * Math.cos(angle*Math.PI/180)
@@ -43,25 +53,18 @@ test:<a href="/rest/customers/1">link</a>
             data.modules[i].y = y;
         }
 
-        var moduleMap = []
-        for (i = 0; i < data.modules.length; i++) {
-            moduleMap[data.modules[i].name] = data.modules[i]
-        }
-
-
-        defineArrow();
-
+        // paint modules as circles
         for (i = 0; i < data.modules.length; i++) {
             var module = data.modules[i];
             addCircle(module.x, module.y, module.name);
         }
 
+        // paint deps between modules
         for (i = 0; i < data.modules.length; i++) {
             var module = data.modules[i];
             for (j = 0; j < module.dep.length; j++) {
                 var depModule = moduleMap[module.dep[j]]
-                addLine(module.x, module.y, depModule.x, depModule.y);
-
+                addLineOnCircleEdge(module.x, module.y, depModule.x, depModule.y);
             }
         }
 
@@ -118,6 +121,28 @@ test:<a href="/rest/customers/1">link</a>
             .attr("stroke", "black")
             .attr("marker-end", "url(#triangle)");
     }
+
+    function addLineOnCircleEdge(x1, y1, x2, y2) {
+        var xOffset = x1 - x2;
+        var yOffset = y1 - y2;
+        var leng = Math.sqrt(xOffset*xOffset+yOffset*yOffset)
+        var percOff = 50/leng
+        var newX1 = x1-xOffset*percOff
+        var newY1 = y1-yOffset*percOff
+
+        var newX2 = x2+xOffset*percOff
+        var newY2 = y2+yOffset*percOff
+
+        svg.append("line")
+            .attr("x1", newX1)
+            .attr("y1", newY1)
+            .attr("x2", newX2)
+            .attr("y2", newY2)
+            .attr("stroke-width", 1)
+            .attr("stroke", "black")
+            .attr("marker-end", "url(#triangle)");
+    }
+
 
 </script>
 
