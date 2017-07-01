@@ -37,6 +37,10 @@ class DepServer {
 
     companion object {
         var log = Log()
+        var data:EnrichedModuleGroups? = null;
+
+
+
     }
 
     fun start() {
@@ -46,7 +50,24 @@ class DepServer {
         val yamlFilename = "groups.yaml"
         val moduleGroups: ModuleGroups = moduleGroupService.getExistsingOrNewModuleGroups(yamlFilename, moduleGroupService)
 
-        val enrichedModuleGroups: EnrichedModuleGroups = EnrichedModuleGroups(
+        DepServer.data = enrichModel(moduleGroups)
+
+        log.info("start server!!")
+
+        setLoggingLevel()
+
+        val server = buildServer()
+        val contextHandler = createContextHandler()
+        server.handler = contextHandler
+        startServer(server)
+
+
+    }
+
+    private fun enrichModel(moduleGroups: ModuleGroups): EnrichedModuleGroups {
+
+        // copy moduleGroup
+        val enrichedModuleGroups = EnrichedModuleGroups(
                 moduleGroups.application,
                 moduleGroups.moduleGroups
                         .map {
@@ -84,10 +105,10 @@ class DepServer {
                 .moduleGroups
                 .flatMap {
                     it.layers.flatMap {
-                        it.modules.map {it}
+                        it.modules.map { it }
                     }
                 }
-                .associateBy ({ it.name}, {it })
+                .associateBy({ it.name }, { it })
 
         // fill in all depTo
         File("target").listFiles(FileFilter { it.name.endsWith("yaml") }).forEach {
@@ -95,10 +116,10 @@ class DepServer {
 
             val moduleDependency = mapper.readValue(it.readText(charset = Charsets.UTF_8), ModuleDependency::class.java)
             val module = allModules.get("${moduleDependency.groupId}:${moduleDependency.artifactId}")
-            if (module!=null) {
+            if (module != null) {
                 moduleDependency.deps.forEach {
                     val depModule = allModules.get(it)
-                    if (depModule!=null) {
+                    if (depModule != null) {
                         module.depsTo = module.depsTo.plus(depModule)
                     }
                 }
@@ -111,16 +132,7 @@ class DepServer {
             module.depsFrom = allModules.values.filter { it.depsTo.contains(module) }
         }
 
-        log.info("start server!!")
-
-        setLoggingLevel()
-
-        val server = buildServer()
-        val contextHandler = createContextHandler()
-        server.handler = contextHandler
-        startServer(server)
-
-
+        return enrichedModuleGroups
     }
 
     private fun createContextHandler(): ServletContextHandler {
