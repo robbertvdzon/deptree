@@ -16,8 +16,23 @@
 </head>
 
 <body>
-test:<a href="/rest/customers/1">link</a>
+<table id="linkTable">
+    <tbody>
+    </tbody>
+</table>
+
+
 <script>
+
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
 
     $.ajax("/rest/modulegroup/all", {
         success: function(data) {
@@ -32,8 +47,107 @@ test:<a href="/rest/customers/1">link</a>
 
     function load(data) {
 
+        //Important code starts here to populate table
+        var $table = $('#linkTable');
+        $table.append('<tr><td><a href="index.html">all</a></td></tr>');
+        for (i = 0; i < data.modules.length; i++) {
+            $table.append('<tr><td><a href="index.html?modulegroup='+data.modules[i].name+'">' + data.modules[i].name + '</a></td></tr>');
+        }
+
         defineArrow();
 
+        var modulegroup = getParameterByName('modulegroup');
+        if (modulegroup==null){
+            allModules(data);
+        }
+        else{
+            showSelectedModule(modulegroup, data);
+        }
+    }
+
+    function showSelectedModule(modulegroup, data) {
+
+        var DISTANCE_BETWEEN_NODES=120;
+        var X_MARGE=60;
+        var ROW1=50;
+        var ROW2=200;
+        var ROW3=350;
+
+        // create a map of all modules
+        var allModuleMap = []
+        for (i = 0; i < data.modules.length; i++) {
+            allModuleMap[data.modules[i].name] = data.modules[i]
+        }
+
+        // find group
+        var moduleGroupObject = allModuleMap[modulegroup]
+
+        // create a list of all modules that have a dep to the module
+        var moduleToList = []
+        var moduleToMap = []
+        var index = 0;
+        for (i = 0; i < data.modules.length; i++) {
+            var module = data.modules[i];
+            for (j = 0; j < module.dep.length; j++) {
+                var depModule = allModuleMap[module.dep[j]]
+                if (depModule.name==modulegroup){
+                    moduleToList.push(module);
+                    moduleToMap[module.name] = module;
+                    module.x = X_MARGE+DISTANCE_BETWEEN_NODES*index;
+                    module.y = ROW3;
+                    index++;
+
+                }
+            }
+        }
+
+        // create a list of all modules that have a dep from the module
+        var moduleFromList = []
+        var index = 0;
+        for (i = 0; i < moduleGroupObject.dep.length; i++) {
+            var moduleGroupToName = moduleGroupObject.dep[i];
+            var moduleGroupTo = allModuleMap[moduleGroupToName];
+            moduleFromList.push(moduleGroupTo)
+            if (moduleToMap[moduleGroupTo.name]==null) {
+                moduleGroupTo.x = X_MARGE+DISTANCE_BETWEEN_NODES*i;
+                moduleGroupTo.y = ROW1;
+            }
+        }
+
+        if (moduleFromList.length>moduleToList.length){
+            var maxNumOnRow = moduleFromList.length;
+        }
+        else{
+            var maxNumOnRow = moduleToList.length;
+        }
+        moduleGroupObject.x=X_MARGE+DISTANCE_BETWEEN_NODES*(maxNumOnRow-1)/2;
+        moduleGroupObject.y=ROW2;
+
+
+        // paint modules as circles
+        for (i = 0; i < moduleFromList.length; i++) {
+            var module = moduleFromList[i];
+            addCircle(module.x, module.y, module.name);
+        }
+        for (i = 0; i < moduleToList.length; i++) {
+            var module = moduleToList[i];
+            addCircle(module.x, module.y, module.name);
+        }
+        addCircle(moduleGroupObject.x, moduleGroupObject.y, moduleGroupObject.name);
+
+        // paint deps between modules
+        for (i = 0; i < moduleFromList.length; i++) {
+            var module = moduleFromList[i];
+            addLineOnCircleEdge(module.x, module.y, moduleGroupObject.x, moduleGroupObject.y);
+        }
+        for (i = 0; i < moduleToList.length; i++) {
+            var module = moduleToList[i];
+            addLineOnCircleEdge(moduleGroupObject.x, moduleGroupObject.y, module.x, module.y);
+        }
+    }
+
+
+    function allModules(data) {
         var total = data.modules.length;
         var radius = 250;
         var offset = 300;
@@ -67,10 +181,6 @@ test:<a href="/rest/customers/1">link</a>
                 addLineOnCircleEdge(module.x, module.y, depModule.x, depModule.y);
             }
         }
-
-
-
-
     }
 
     function createSvg() {
