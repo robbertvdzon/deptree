@@ -38,15 +38,15 @@
     positionGroups();
     initialPaintGroups();
 
-    svg.on("click", function () {
+    svg.on("dblclick", function () {
         var coords = d3.mouse(this);
 
         switch (state) {
             case ALL_GROUPS_DIAGRAM:
-                var selectedGroup = findSelectedGroup(coords);
-                if (selectedGroup != null) {
+                var _selectedGroup = findSelectedGroup(coords);
+                if (_selectedGroup != null) {
                     state = SELECTED_GROUPS_DIAGRAM;
-                    selectedGroup = selectedGroup;
+                    selectedGroup = _selectedGroup;
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
@@ -87,6 +87,7 @@
             .selectAll("circle")
             .data(nodes.groups)
             .transition()
+            .duration(1000)
             .attr("cx", function(d) { return d.x })
             .attr("cy", function(d) { return d.y })
             .attr("r", CIRCLE_R)
@@ -105,12 +106,47 @@
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
+                var groupDepsTo = []
+                var groupDepsFrom = []
+                for (i = 0; i < nodes.depGroupGroups.length; i++) {
+                    var depGroupGroup = nodes.depGroupGroups[i];
+                    if (depGroupGroup.from == selectedGroup){
+                        if (groupDepsTo.indexOf(depGroupGroup.to)==-1) {
+                            groupDepsTo.push(depGroupGroup.to);
+                        }
+                    }
+                }
+                for (i = 0; i < nodes.depGroupGroups.length; i++) {
+                    var depGroupGroup = nodes.depGroupGroups[i];
+                    if (depGroupGroup.to == selectedGroup){
+                        if ((groupDepsFrom.indexOf(depGroupGroup.to)==-1) && groupDepsTo.indexOf(depGroupGroup.to)==-1) {
+                            groupDepsFrom.push(depGroupGroup.from);
+                        }
+                    }
+                }
+                var depFromIndex = 0;
+                var depToIndex = 0;
+
                 for (i = 0; i < nodes.groups.length; i++) {
-                    var angle = (360 / totalGroups) * i;
-                    var x = offset + radius * Math.cos(angle * Math.PI / 180);
-                    var y = offset + radius * Math.sin(angle * Math.PI / 180);
-                    nodes.groups[i].x = x;
-                    nodes.groups[i].y = y/2;
+                    var groupName = nodes.groups[i].name;
+                    if (groupDepsFrom.indexOf(groupName)!=-1){
+                        nodes.groups[i].x = 50+depFromIndex*50;
+                        nodes.groups[i].y = 100;
+                        depFromIndex++;
+                    }
+                    else if (groupDepsTo.indexOf(groupName)!=-1){
+                        nodes.groups[i].x = 50+depToIndex*50;
+                        nodes.groups[i].y = 300;
+                        depToIndex++;
+                    }
+                    else if (groupName == selectedGroup){
+                        nodes.groups[i].x = 200;
+                        nodes.groups[i].y = 200;
+                    }
+                    else{
+                        nodes.groups[i].x = 0;
+                        nodes.groups[i].y = 0;
+                    }
                 }
                 break;
             default:
