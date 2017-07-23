@@ -9,6 +9,7 @@ import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleGroups
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleLayer
 import com.vdzon.maven.plugin.deptree.model.ModuleDependency
 import com.vdzon.maven.plugin.deptree.model.ModuleGroups
+import com.vdzon.maven.plugin.deptree.resource.Builder
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.DefaultServlet
@@ -52,6 +53,9 @@ class DepServer {
 
         DepServer.data = enrichModel(moduleGroups)
 
+        buildDataJson()
+        copyWebResources()
+
         log.info("start server!!")
 
         setLoggingLevel()
@@ -62,6 +66,17 @@ class DepServer {
         startServer(server)
 
 
+    }
+
+    private fun copyWebResources() {
+        val classLoader = javaClass.classLoader
+        val file: File = File(classLoader.getResource("index.html")!!.file)
+        file.copyTo(File("target","index.html"), overwrite = true)
+    }
+
+    private fun buildDataJson() {
+        val json = ObjectMapper().writeValueAsString(Builder.buildModel())
+        File("target", "nodes.json").writeText(json, charset = Charsets.UTF_8)
     }
 
     private fun enrichModel(moduleGroups: ModuleGroups): EnrichedModuleGroups {
