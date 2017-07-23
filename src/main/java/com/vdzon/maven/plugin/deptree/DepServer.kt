@@ -7,8 +7,8 @@ import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModule
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleGroup
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleGroups
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleLayer
-import com.vdzon.maven.plugin.deptree.model.ModuleDependency
-import com.vdzon.maven.plugin.deptree.model.ModuleGroups
+import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleDependency
+import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleGroups
 import com.vdzon.maven.plugin.deptree.resource.Builder
 import java.io.File
 import java.io.FileFilter

@@ -1,7 +1,7 @@
 package com.vdzon.maven.plugin.deptree.dto;
 
-import com.vdzon.maven.plugin.deptree.model.ModuleDto
-import com.vdzon.maven.plugin.deptree.model.GroupDto
+import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleDto
+import com.vdzon.maven.plugin.deptree.jsonmodel.GroupDto
 import java.util.ArrayList
 
 class ModelDto (

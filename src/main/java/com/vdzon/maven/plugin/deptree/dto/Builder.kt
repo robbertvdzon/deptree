@@ -5,8 +5,8 @@ import com.vdzon.maven.plugin.deptree.DepServer
 import com.vdzon.maven.plugin.deptree.dto.*
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModule
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedModuleGroups
-import com.vdzon.maven.plugin.deptree.model.GroupDto
-import com.vdzon.maven.plugin.deptree.model.ModuleDto
+import com.vdzon.maven.plugin.deptree.jsonmodel.GroupDto
+import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleDto
 
 class Builder {
 

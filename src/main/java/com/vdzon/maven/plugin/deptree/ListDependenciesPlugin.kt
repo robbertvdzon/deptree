@@ -3,7 +3,7 @@ package com.vdzon.maven.plugin.deptree
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.vdzon.maven.plugin.deptree.model.*
+import com.vdzon.maven.plugin.deptree.jsonmodel.*
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.MojoExecutionException

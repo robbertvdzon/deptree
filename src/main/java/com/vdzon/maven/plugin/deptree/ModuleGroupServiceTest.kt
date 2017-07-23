@@ -1,9 +1,9 @@
 //package com.vdzon.maven.plugin.deptree
 //
-//import com.vdzon.maven.plugin.deptree.model.Module
-//import com.vdzon.maven.plugin.deptree.model.ModuleGroup
-//import com.vdzon.maven.plugin.deptree.model.ModuleGroups
-//import com.vdzon.maven.plugin.deptree.model.ModuleLayer
+//import com.vdzon.maven.plugin.deptree.jsonmodel.Module
+//import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleGroup
+//import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleGroups
+//import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleLayer
 //import org.assertj.core.api.Assertions.assertThat
 //import org.junit.Test
 //
@@ -18,7 +18,7 @@
 //        val module4 = Module("module4")
 //        val module5 = Module("module5")
 //        val layer1 = ModuleLayer("storage", listOf<Module>(module1, module2))
-//        val layer2 = ModuleLayer("model", listOf<Module>(module3))
+//        val layer2 = ModuleLayer("jsonmodel", listOf<Module>(module3))
 //        val layer3 = ModuleLayer("storage", listOf<Module>(module4))
 //        val layer4 = ModuleLayer("usercases", listOf<Module>(module5))
 //        val moduleGroup1 = ModuleGroup("group1", listOf<ModuleLayer>(layer1, layer2))
@@ -37,7 +37,7 @@
 //    modules:
 //    - name: "module1"
 //    - name: "module2"
-//  - name: "model"
+//  - name: "jsonmodel"
 //    modules:
 //    - name: "module3"
 //- modulegroup: "group2"
@@ -63,7 +63,7 @@
 //    modules:
 //    - name: "module1"
 //    - name: "module2"
-//  - name: "model"
+//  - name: "jsonmodel"
 //    modules:
 //    - name: "module3"
 //- modulegroup: "group2"
