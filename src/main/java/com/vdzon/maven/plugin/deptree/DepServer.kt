@@ -55,7 +55,7 @@ class DepServer {
 
     private fun getJsonData(): String {
         val json = ObjectMapper().writeValueAsString(Builder.buildModel())
-        return json!!
+        return "var nodes = $json"
     }
 
     private fun getTemplateHtmlFile(): String {
