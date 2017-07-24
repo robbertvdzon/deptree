@@ -41,33 +41,24 @@ class DepServer {
 
         DepServer.data = enrichModel(moduleGroups)
 
-        buildHtmlFile()
+        generateWebPages()
     }
 
-    private fun buildHtmlFile() {
-        val newHtmlFile = File("target", "dependencies.html");
+    private fun generateWebPages() {
+        val htmlFile = File("target", "dependencies.html");
+        val jsFile = File("target", "jsondata.js");
         val templateHtml = getTemplateHtmlFile()
         val jsonData = getJsonData()
-        newHtmlFile.writeText(replaceSampleDataWithJson(templateHtml, jsonData))
+        htmlFile.writeText(templateHtml)
+        jsFile.writeText(jsonData)
     }
 
-    private fun replaceSampleDataWithJson(text: String, json: String?): String {
-        val startIndex = text.indexOf("START SAMPLE DATA")
-        val endIndex = text.indexOf("END SAMPLE DATA")
-        val part1 = text.substring(0, startIndex)
-        val part2 = text.substring(endIndex + "END SAMPLE DATA".length)
-        var newHtml = "$part1 GENERATED DATA\n    var nodes = $json \n$part2"
-        return newHtml
-    }
-
-    private fun getJsonData(): String? {
+    private fun getJsonData(): String {
         val json = ObjectMapper().writeValueAsString(Builder.buildModel())
-        return json
+        return json!!
     }
 
     private fun getTemplateHtmlFile(): String {
-
-
         val classLoader = javaClass.classLoader
         val t = classLoader.getResourceAsStream("index.html")
         val s = Scanner(t).useDelimiter("\\A")
@@ -76,7 +67,6 @@ class DepServer {
     }
 
     private fun enrichModel(moduleGroups: ModuleGroups): EnrichedModuleGroups {
-
         // copy moduleGroup
         val enrichedModuleGroups = EnrichedModuleGroups(
                 moduleGroups.application,
