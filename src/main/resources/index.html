@@ -36,9 +36,11 @@
     var ALL_GROUPS_DIAGRAM = 0;
     var SELECTED_GROUPS_DIAGRAM = 1;
     var GROUP_MODULES_DIAGRAM = 2;
+    var SELECTED_MODULE_DIAGRAM = 3;
 
     var state = ALL_GROUPS_DIAGRAM;
     var selectedGroup = "";
+    var selectedModule = "";
     var totalGroups = nodes.groups.length;
     var radius = 250;
     var offset = 300;
@@ -51,7 +53,7 @@
     initialPaintGroups();
     initialPaintModules();
 
-    svg.on("dblclick", function () {
+    svg.on("click", function () {
         var coords = d3.mouse(this);
 
         switch (state) {
@@ -75,7 +77,23 @@
                 }
                 break;
             case GROUP_MODULES_DIAGRAM:
-                state = SELECTED_GROUPS_DIAGRAM;
+                var clickedModule = findSelectedModule(coords);
+                if (clickedModule != null) {
+                    state = SELECTED_MODULE_DIAGRAM;
+                    selectedModule = clickedModule;
+                }
+                else{
+                    state = SELECTED_GROUPS_DIAGRAM;
+                }
+                break;
+            case SELECTED_MODULE_DIAGRAM:
+                var clickedModule = findSelectedModule(coords);
+                if (clickedModule != null) {
+                    selectedModule = clickedModule;
+                }
+                else{
+                    state = GROUP_MODULES_DIAGRAM;
+                }
                 break;
         }
         positionGroups();
@@ -319,6 +337,59 @@
                     groupModules[i].y = y;
                 }
                 break;
+            case SELECTED_MODULE_DIAGRAM:
+                var modulesDepsTo = [];
+                var modulesDepsFrom = [];
+                for (i = 0; i < nodes.depModuleModules.length; i++) {
+                    var depModuleModule = nodes.depModuleModules[i];
+                    if (depModuleModule.from == selectedModule){
+                        if (modulesDepsTo.indexOf(depModuleModule.to)==-1) {
+                            modulesDepsTo.push(depModuleModule.to);
+                        }
+                    }
+                }
+                for (i = 0; i < nodes.depModuleModules.length; i++) {
+                    var depModuleModule = nodes.depModuleModules[i];
+                    if (depModuleModule.to == selectedModule){
+                        if ((modulesDepsFrom.indexOf(depModuleModule.to)==-1) && modulesDepsFrom.indexOf(depModuleModule.to)==-1) {
+                            modulesDepsFrom.push(depModuleModule.from);
+                        }
+                    }
+                }
+                var depFromIndex = 0;
+                var depToIndex = 0;
+
+                for (i = 0; i < groupModules.length; i++) {
+                    var moduleName = groupModules[i].name;
+                    if (modulesDepsFrom.indexOf(moduleName)!=-1){
+                        groupModules[i].x = 50+depFromIndex*50;
+                        groupModules[i].y = 100 - (depFromIndex%3)*20;
+                        groupModules[i].width = GROUPS_SMALL_WIDTH;
+                        groupModules[i].height = GROUPS_SMALL_HEIGHT;
+                        depFromIndex++;
+                    }
+                    else if (modulesDepsTo.indexOf(moduleName)!=-1){
+                        groupModules[i].x = 50+depToIndex*50;
+                        groupModules[i].y = 300 + (depToIndex%3)*20;
+                        groupModules[i].width = GROUPS_SMALL_WIDTH;
+                        groupModules[i].height = GROUPS_SMALL_HEIGHT;
+                        depToIndex++;
+                    }
+                    else if (moduleName == selectedModule){
+                        groupModules[i].x = 200;
+                        groupModules[i].y = 200;
+                        groupModules[i].width = GROUPS_SMALL_WIDTH;
+                        groupModules[i].height = GROUPS_SMALL_HEIGHT;
+                    }
+                    else{
+                        groupModules[i].width = 0;
+                        groupModules[i].height = 0;
+                        groupModules[i].x = 0;
+                        groupModules[i].y = -20;
+                    }
+                }
+                break;
+
             default:
                 break;
         }
