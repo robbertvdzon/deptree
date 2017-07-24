@@ -24,6 +24,7 @@
 
     var ALL_GROUPS_DIAGRAM = 0;
     var SELECTED_GROUPS_DIAGRAM = 1;
+    var GROUP_MODULES_DIAGRAM = 2;
 
     var state = ALL_GROUPS_DIAGRAM;
     var selectedGroup = "";
@@ -42,14 +43,26 @@
 
         switch (state) {
             case ALL_GROUPS_DIAGRAM:
-                var _selectedGroup = findSelectedGroup(coords);
-                if (_selectedGroup != null) {
+                var clickedGroup = findSelectedGroup(coords);
+                if (clickedGroup != null) {
                     state = SELECTED_GROUPS_DIAGRAM;
-                    selectedGroup = _selectedGroup;
+                    selectedGroup = clickedGroup;
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
-                state = ALL_GROUPS_DIAGRAM;
+                var clickedGroup = findSelectedGroup(coords);
+                if (clickedGroup == selectedGroup ) {
+                    state = GROUP_MODULES_DIAGRAM;
+                }
+                else if (clickedGroup != null ){
+                    selectedGroup = clickedGroup;
+                }
+                else {
+                    state = ALL_GROUPS_DIAGRAM;
+                }
+                break;
+            case GROUP_MODULES_DIAGRAM:
+                state = SELECTED_GROUPS_DIAGRAM;
                 break;
         }
         positionGroups();
@@ -92,7 +105,9 @@
             .attr("y", function(d) { return d.y })
             .attr("width", function(d) { return d.width })
             .attr("height", function(d) { return d.height })
-            .style("fill", "#B8DEE6");
+            .attr('stroke-width', 1)
+            .attr('stroke', "#000000")
+            .style("fill", "#EEEEEE");
     }
 
     function repaintGroups() {
@@ -163,6 +178,23 @@
                         nodes.groups[i].y = 200;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                    }
+                    else{
+                        nodes.groups[i].width = 0;
+                        nodes.groups[i].height = 0;
+                        nodes.groups[i].x = 0;
+                        nodes.groups[i].y = 0;
+                    }
+                }
+                break;
+            case GROUP_MODULES_DIAGRAM:
+                for (i = 0; i < nodes.groups.length; i++) {
+                    var groupName = nodes.groups[i].name;
+                    if (groupName == selectedGroup){
+                        nodes.groups[i].x = 2;
+                        nodes.groups[i].y = 2;
+                        nodes.groups[i].width = width-4;
+                        nodes.groups[i].height = height-4;
                     }
                     else{
                         nodes.groups[i].width = 0;
