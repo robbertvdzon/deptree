@@ -50,8 +50,10 @@
 
     positionGroups();
     positionModules();
+    positionDepGroupGroups();
     initialPaintGroups();
     initialPaintModules();
+    initialPaintDepGroupGroup();
 
     svg.on("click", function () {
         var coords = d3.mouse(this);
@@ -98,8 +100,10 @@
         }
         positionGroups();
         positionModules();
+        positionDepGroupGroups();
         repaintGroups();
         repaintModules();
+        repaintDepGroupGroup();
     });
 
     function findSelectedGroup(coords) {
@@ -213,6 +217,91 @@
             .attr("y", function(d) { return d.y +10});
     }
 
+    function initialPaintDepGroupGroup() {
+        svg
+            .selectAll(".depgroupgroup")
+            .data(nodes.depGroupGroups)
+            .enter()
+            .append("line")
+            .attr("class", "depgroupgroup")
+            .attr("x1", function(d) { return d.x1 })
+            .attr("y1", function(d) { return d.y1 })
+            .attr("x2", function(d) { return d.x2 })
+            .attr("y2", function(d) { return d.y2 })
+            .attr("stroke-width", 1)
+            .attr("stroke", "black");
+    }
+
+    function repaintDepGroupGroup() {
+        svg
+            .selectAll(".depgroupgroup")
+            .data(nodes.depGroupGroups)
+            .transition()
+            .duration(1000)
+            .attr("x1", function(d) { return d.x1 })
+            .attr("y1", function(d) { return d.y1 })
+            .attr("x2", function(d) { return d.x2 })
+            .attr("y2", function(d) { return d.y2 });
+    }
+    function createGroupArray(){
+        var allGroups = {};
+        for (i = 0; i < nodes.groups.length; i++) {
+            var group = nodes.groups[i];
+            allGroups[group.name] = group;
+        }
+        return allGroups;
+    }
+
+    function positionDepGroupGroups(){
+        var groupCache = createGroupArray();
+        switch (state) {
+            case ALL_GROUPS_DIAGRAM:
+                for (i = 0; i < nodes.depGroupGroups.length; i++) {
+                    var dep = nodes.depGroupGroups[i];
+                    var groupFrom = groupCache[dep.from];
+                    var groupTo = groupCache[dep.to];
+                    dep.x1 = groupFrom.x;
+                    dep.y1 = groupFrom.y;
+                    dep.x2 = groupTo.x;
+                    dep.y2 = groupTo.y;
+                }
+                break;
+            case SELECTED_GROUPS_DIAGRAM:
+                for (i = 0; i < nodes.depGroupGroups.length; i++) {
+                    var dep = nodes.depGroupGroups[i];
+                    var groupFrom = groupCache[dep.from];
+                    var groupTo = groupCache[dep.to];
+                    if (
+                        groupFrom.isVisible
+                        && groupTo.isVisible
+                        && (groupFrom.name == selectedGroup || groupTo.name == selectedGroup)
+                    ) {
+                        dep.x1 = groupFrom.x;
+                        dep.y1 = groupFrom.y;
+                        dep.x2 = groupTo.x;
+                        dep.y2 = groupTo.y;
+                    }
+                    else{
+                        dep.x1 = -1;
+                        dep.y1 = -1;
+                        dep.x2 = -1;
+                        dep.y2 = -1;
+                    }
+                }
+                break;
+            case GROUP_MODULES_DIAGRAM:
+            case SELECTED_MODULE_DIAGRAM:
+                for (i = 0; i < nodes.depGroupGroups.length; i++) {
+                    var dep = nodes.depGroupGroups[i];
+                    dep.x1 = -1;
+                    dep.y1 = -1;
+                    dep.x2 = -1;
+                    dep.y2 = -1;
+                }
+                break;
+        }
+    }
+
     function positionGroups() {
         switch (state) {
             case ALL_GROUPS_DIAGRAM:
@@ -224,6 +313,7 @@
                     nodes.groups[i].y = y;
                     nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                     nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                    nodes.groups[i].isVisible = true;
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
@@ -255,6 +345,7 @@
                         nodes.groups[i].y = 100 - (depFromIndex%3)*20;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                        nodes.groups[i].isVisible = true;
                         depFromIndex++;
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
@@ -262,6 +353,7 @@
                         nodes.groups[i].y = 300 + (depToIndex%3)*20;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                        nodes.groups[i].isVisible = true;
                         depToIndex++;
                     }
                     else if (groupName == selectedGroup){
@@ -269,12 +361,14 @@
                         nodes.groups[i].y = 200;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                        nodes.groups[i].isVisible = true;
                     }
                     else{
                         nodes.groups[i].width = 0;
                         nodes.groups[i].height = 0;
                         nodes.groups[i].x = 0;
                         nodes.groups[i].y = -20;
+                        nodes.groups[i].isVisible = false;
                     }
                 }
                 break;
