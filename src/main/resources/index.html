@@ -48,12 +48,27 @@
     var GROUPS_SMALL_HEIGHT = 15;
     var CIRCLE_R = 15;
 
+    defineArrow();
     positionGroups();
     positionModules();
     positionDepGroupGroups();
     initialPaintGroups();
     initialPaintModules();
     initialPaintDepGroupGroup();
+
+    function defineArrow() {
+        svg.append("svg:defs").append("svg:marker")
+            .attr("id", "triangle")
+            .attr("refX", 3)
+            .attr("refY", 3)
+            .attr("markerWidth", 15)
+            .attr("markerHeight", 15)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M 0 0 6 3 0 6 1 3")
+            .style("fill", "black");
+    }
+
 
     svg.on("click", function () {
         var coords = d3.mouse(this);
@@ -228,6 +243,7 @@
             .attr("y1", function(d) { return d.y1 })
             .attr("x2", function(d) { return d.x2 })
             .attr("y2", function(d) { return d.y2 })
+            .attr("marker-end", "url(#triangle)")
             .attr("stroke-width", 1)
             .attr("stroke", "black");
     }
@@ -252,6 +268,21 @@
         return allGroups;
     }
 
+    function placeXYOnEdges(dep){
+        var xOffset = dep.x1 - dep.x2;
+        var yOffset = dep.y1 - dep.y2;
+        var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+        var percOff = 20 / leng;
+        var newX1 = dep.x1 - xOffset * percOff;
+        var newY1 = dep.y1 - yOffset * percOff;
+        var newX2 = dep.x2 + xOffset * percOff;
+        var newY2 = dep.y2 + yOffset * percOff;
+        dep.x1 = newX1;
+        dep.y1 = newY1;
+        dep.x2 = newX2;
+        dep.y2 = newY2;
+    }
+
     function positionDepGroupGroups(){
         var groupCache = createGroupArray();
         switch (state) {
@@ -260,10 +291,11 @@
                     var dep = nodes.depGroupGroups[i];
                     var groupFrom = groupCache[dep.from];
                     var groupTo = groupCache[dep.to];
-                    dep.x1 = groupFrom.x;
-                    dep.y1 = groupFrom.y;
-                    dep.x2 = groupTo.x;
-                    dep.y2 = groupTo.y;
+                    dep.x1 = groupFrom.x+groupFrom.width/2;
+                    dep.y1 = groupFrom.y+groupFrom.height/2;
+                    dep.x2 = groupTo.x+groupTo.width/2;
+                    dep.y2 = groupTo.y+groupTo.height/2;
+                    placeXYOnEdges(dep);
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
@@ -276,10 +308,11 @@
                         && groupTo.isVisible
                         && (groupFrom.name == selectedGroup || groupTo.name == selectedGroup)
                     ) {
-                        dep.x1 = groupFrom.x;
-                        dep.y1 = groupFrom.y;
-                        dep.x2 = groupTo.x;
-                        dep.y2 = groupTo.y;
+                        dep.x1 = groupFrom.x+groupFrom.width/2;
+                        dep.y1 = groupFrom.y+groupFrom.height/2;
+                        dep.x2 = groupTo.x+groupTo.width/2;
+                        dep.y2 = groupTo.y+groupTo.height/2;
+                        placeXYOnEdges(dep);
                     }
                     else{
                         dep.x1 = -1;
