@@ -12,6 +12,17 @@
         stroke-width: 1.5px;
     }
 
+    svg text {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        cursor: default;
+    }
+    svg text::selection {
+        background: none;
+    }
+
 </style>
 <svg width="960" height="600"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -97,10 +108,11 @@
 
     function initialPaintGroups() {
         svg
-            .selectAll("rect")
+            .selectAll(".group")
             .data(nodes.groups)
             .enter()
             .append("rect")
+            .attr("class", "group")
             .attr("x", function(d) { return d.x })
             .attr("y", function(d) { return d.y })
             .attr("width", function(d) { return d.width })
@@ -108,18 +120,34 @@
             .attr('stroke-width', 1)
             .attr('stroke', "#000000")
             .style("fill", "#EEEEEE");
+        svg
+            .selectAll(".groupname")
+            .data(nodes.groups)
+            .enter()
+            .append("text")
+            .text(function(d) { return d.name })
+            .attr("class", "groupname")
+            .attr("x", function(d) { return d.x + GROUPS_SMALL_WIDTH + 10})
+            .attr("y", function(d) { return d.y +10});
     }
 
     function repaintGroups() {
         svg
-            .selectAll("rect")
+            .selectAll(".group")
             .data(nodes.groups)
             .transition()
             .duration(1000)
             .attr("x", function(d) { return d.x })
             .attr("y", function(d) { return d.y })
             .attr("width", function(d) { return d.width })
-            .attr("height", function(d) { return d.height })
+            .attr("height", function(d) { return d.height });
+        svg
+            .selectAll(".groupname")
+            .data(nodes.groups)
+            .transition()
+            .duration(1000)
+            .attr("x", function(d) { return d.x + GROUPS_SMALL_WIDTH + 10})
+            .attr("y", function(d) { return d.y +10});
     }
 
     function positionGroups() {
@@ -161,14 +189,14 @@
                     var groupName = nodes.groups[i].name;
                     if (groupDepsFrom.indexOf(groupName)!=-1){
                         nodes.groups[i].x = 50+depFromIndex*50;
-                        nodes.groups[i].y = 100;
+                        nodes.groups[i].y = 100 - (depFromIndex%3)*20;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                         depFromIndex++;
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
                         nodes.groups[i].x = 50+depToIndex*50;
-                        nodes.groups[i].y = 300;
+                        nodes.groups[i].y = 300 + (depToIndex%3)*20;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                         depToIndex++;
@@ -183,7 +211,7 @@
                         nodes.groups[i].width = 0;
                         nodes.groups[i].height = 0;
                         nodes.groups[i].x = 0;
-                        nodes.groups[i].y = 0;
+                        nodes.groups[i].y = -20;
                     }
                 }
                 break;
@@ -200,7 +228,7 @@
                         nodes.groups[i].width = 0;
                         nodes.groups[i].height = 0;
                         nodes.groups[i].x = 0;
-                        nodes.groups[i].y = 0;
+                        nodes.groups[i].y = -20;
                     }
                 }
                 break;
