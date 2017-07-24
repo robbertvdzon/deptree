@@ -52,9 +52,11 @@
     positionGroups();
     positionModules();
     positionDepGroupGroups();
+    positionDepModuleModule();
     initialPaintGroups();
     initialPaintModules();
     initialPaintDepGroupGroup();
+    initialPaintDepModuleModule();
 
     function defineArrow() {
         svg.append("svg:defs").append("svg:marker")
@@ -116,9 +118,11 @@
         positionGroups();
         positionModules();
         positionDepGroupGroups();
+        positionDepModuleModule();
         repaintGroups();
         repaintModules();
         repaintDepGroupGroup();
+        repaintDepModuleModule();
     });
 
     function findSelectedGroup(coords) {
@@ -259,6 +263,35 @@
             .attr("x2", function(d) { return d.x2 })
             .attr("y2", function(d) { return d.y2 });
     }
+
+    function initialPaintDepModuleModule() {
+        svg
+            .selectAll(".depmodulemodule")
+            .data(nodes.depModuleModules)
+            .enter()
+            .append("line")
+            .attr("class", "depmodulemodule")
+            .attr("x1", function(d) { return d.x1 })
+            .attr("y1", function(d) { return d.y1 })
+            .attr("x2", function(d) { return d.x2 })
+            .attr("y2", function(d) { return d.y2 })
+            .attr("marker-end", "url(#triangle)")
+            .attr("stroke-width", 1)
+            .attr("stroke", "black");
+    }
+
+    function repaintDepModuleModule() {
+        svg
+            .selectAll(".depmodulemodule")
+            .data(nodes.depModuleModules)
+            .transition()
+            .duration(1000)
+            .attr("x1", function(d) { return d.x1 })
+            .attr("y1", function(d) { return d.y1 })
+            .attr("x2", function(d) { return d.x2 })
+            .attr("y2", function(d) { return d.y2 });
+    }
+
     function createGroupArray(){
         var allGroups = {};
         for (i = 0; i < nodes.groups.length; i++) {
@@ -268,10 +301,20 @@
         return allGroups;
     }
 
+    function createModuleArray(){
+        var allModules = {};
+        for (i = 0; i < nodes.modules.length; i++) {
+            var module = nodes.modules[i];
+            allModules[module.name] = module;
+        }
+        return allModules;
+    }
+
     function placeXYOnEdges(dep){
         var xOffset = dep.x1 - dep.x2;
         var yOffset = dep.y1 - dep.y2;
         var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+        if (leng==0) return;
         var percOff = 20 / leng;
         var newX1 = dep.x1 - xOffset * percOff;
         var newY1 = dep.y1 - yOffset * percOff;
@@ -334,6 +377,79 @@
                 break;
         }
     }
+
+    function positionDepModuleModule(){
+        var moduleCache = createModuleArray();
+        switch (state) {
+            case ALL_GROUPS_DIAGRAM:
+                for (i = 0; i < nodes.depModuleModules.length; i++) {
+                    var dep = nodes.depModuleModules[i];
+                    dep.x1 = -1;
+                    dep.y1 = -1;
+                    dep.x2 = -1;
+                    dep.y2 = -1;
+                }
+                break;
+            case SELECTED_GROUPS_DIAGRAM:
+                for (i = 0; i < nodes.depModuleModules.length; i++) {
+                    var dep = nodes.depModuleModules[i];
+                    dep.x1 = -1;
+                    dep.y1 = -1;
+                    dep.x2 = -1;
+                    dep.y2 = -1;
+                }
+                break;
+            case GROUP_MODULES_DIAGRAM:
+                for (i = 0; i < nodes.depModuleModules.length; i++) {
+                    var dep = nodes.depModuleModules[i];
+                    var moduleFrom = moduleCache[dep.from];
+                    var moduleTo = moduleCache[dep.to];
+                    if (
+                        moduleFrom.isVisible
+                        && moduleTo.isVisible
+                    ) {
+                        dep.x1 = moduleFrom.x;
+                        dep.y1 = moduleFrom.y;
+                        dep.x2 = moduleTo.x;
+                        dep.y2 = moduleTo.y;
+                        placeXYOnEdges(dep);
+                    }
+                    else{
+                        dep.x1 = -1;
+                        dep.y1 = -1;
+                        dep.x2 = -1;
+                        dep.y2 = -1;
+                    }
+                    placeXYOnEdges(dep);
+                }
+                break;
+            case SELECTED_MODULE_DIAGRAM:
+                for (i = 0; i < nodes.depModuleModules.length; i++) {
+                    var dep = nodes.depModuleModules[i];
+                    var moduleFrom = moduleCache[dep.from];
+                    var moduleTo = moduleCache[dep.to];
+                    if (
+                        moduleFrom.isVisible
+                        && moduleTo.isVisible
+                        && (moduleFrom.name == selectedModule || moduleTo.name == selectedModule)
+                    ) {
+                        dep.x1 = moduleFrom.x;
+                        dep.y1 = moduleFrom.y;
+                        dep.x2 = moduleTo.x;
+                        dep.y2 = moduleTo.y;
+                        placeXYOnEdges(dep);
+                    }
+                    else{
+                        dep.x1 = -1;
+                        dep.y1 = -1;
+                        dep.x2 = -1;
+                        dep.y2 = -1;
+                    }
+                }
+                break;
+        }
+    }
+
 
     function positionGroups() {
         switch (state) {
@@ -447,6 +563,7 @@
         for (i = 0; i < nodes.modules.length; i++) {
             nodes.modules[i].x = CIRCLE_R*-1;
             nodes.modules[i].y = CIRCLE_R*-1;
+            nodes.modules[i].isVisible = false;
         }
 
         // set only the selected modules
@@ -462,6 +579,7 @@
                     var y = offset + radius * Math.sin(angle * Math.PI / 180);
                     groupModules[i].x = x;
                     groupModules[i].y = y;
+                    groupModules[i].isVisible = true;
                 }
                 break;
             case SELECTED_MODULE_DIAGRAM:
@@ -491,22 +609,19 @@
                     if (modulesDepsFrom.indexOf(moduleName)!=-1){
                         groupModules[i].x = 50+depFromIndex*50;
                         groupModules[i].y = 100 - (depFromIndex%3)*20;
-                        groupModules[i].width = GROUPS_SMALL_WIDTH;
-                        groupModules[i].height = GROUPS_SMALL_HEIGHT;
+                        groupModules[i].isVisible = true;
                         depFromIndex++;
                     }
                     else if (modulesDepsTo.indexOf(moduleName)!=-1){
                         groupModules[i].x = 50+depToIndex*50;
                         groupModules[i].y = 300 + (depToIndex%3)*20;
-                        groupModules[i].width = GROUPS_SMALL_WIDTH;
-                        groupModules[i].height = GROUPS_SMALL_HEIGHT;
+                        groupModules[i].isVisible = true;
                         depToIndex++;
                     }
                     else if (moduleName == selectedModule){
                         groupModules[i].x = 200;
                         groupModules[i].y = 200;
-                        groupModules[i].width = GROUPS_SMALL_WIDTH;
-                        groupModules[i].height = GROUPS_SMALL_HEIGHT;
+                        groupModules[i].isVisible = true;
                     }
                     else{
                         groupModules[i].width = 0;
