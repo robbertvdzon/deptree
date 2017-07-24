@@ -30,6 +30,8 @@
     var totalGroups = nodes.groups.length;
     var radius = 250;
     var offset = 300;
+    var GROUPS_SMALL_WIDTH = 15;
+    var GROUPS_SMALL_HEIGHT = 15;
     var CIRCLE_R = 15;
 
     positionGroups();
@@ -56,39 +58,53 @@
 
     function findSelectedGroup(coords) {
         for (i = 0; i < nodes.groups.length; i++) {
-            var xdiff = coords[0] - nodes.groups[i].x;
-            var ydiff = coords[1] - nodes.groups[i].y;
-            var distance = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
-            if (distance < CIRCLE_R) {
-                return nodes.groups[i].name;
+            var group = nodes.groups[i];
+            var mouseX = coords[0];
+            var mouseY = coords[1];
+            var xFit = (mouseX>group.x) && (mouseX<group.x+group.width)
+            var yFit = (mouseY>group.y) && (mouseY<group.y+group.height)
+            if (xFit && yFit) {
+                return group.name;
             }
         }
         return null;
+    }
 
+    function findSelectedModule(coords) {
+        for (i = 0; i < nodes.modules.length; i++) {
+            var xdiff = coords[0] - nodes.modules[i].x;
+            var ydiff = coords[1] - nodes.modules[i].y;
+            var distance = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+            if (distance < CIRCLE_R) {
+                return nodes.modules[i].name;
+            }
+        }
+        return null;
     }
 
     function initialPaintGroups() {
         svg
-            .selectAll("circle")
+            .selectAll("rect")
             .data(nodes.groups)
             .enter()
-            .append("circle")
-            .attr("cx", function(d) { return d.x })
-            .attr("cy", function(d) { return d.y })
-            .attr("r", CIRCLE_R)
+            .append("rect")
+            .attr("x", function(d) { return d.x })
+            .attr("y", function(d) { return d.y })
+            .attr("width", function(d) { return d.width })
+            .attr("height", function(d) { return d.height })
             .style("fill", "#B8DEE6");
     }
 
     function repaintGroups() {
         svg
-            .selectAll("circle")
+            .selectAll("rect")
             .data(nodes.groups)
             .transition()
             .duration(1000)
-            .attr("cx", function(d) { return d.x })
-            .attr("cy", function(d) { return d.y })
-            .attr("r", CIRCLE_R)
-            .style("fill", "#B8DEE6");
+            .attr("x", function(d) { return d.x })
+            .attr("y", function(d) { return d.y })
+            .attr("width", function(d) { return d.width })
+            .attr("height", function(d) { return d.height })
     }
 
     function positionGroups() {
@@ -100,6 +116,8 @@
                     var y = offset + radius * Math.sin(angle * Math.PI / 180);
                     nodes.groups[i].x = x;
                     nodes.groups[i].y = y;
+                    nodes.groups[i].width = GROUPS_SMALL_WIDTH;
+                    nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
@@ -129,20 +147,28 @@
                     if (groupDepsFrom.indexOf(groupName)!=-1){
                         nodes.groups[i].x = 50+depFromIndex*50;
                         nodes.groups[i].y = 100;
+                        nodes.groups[i].width = GROUPS_SMALL_WIDTH;
+                        nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                         depFromIndex++;
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
                         nodes.groups[i].x = 50+depToIndex*50;
                         nodes.groups[i].y = 300;
+                        nodes.groups[i].width = GROUPS_SMALL_WIDTH;
+                        nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                         depToIndex++;
                     }
                     else if (groupName == selectedGroup){
                         nodes.groups[i].x = 200;
                         nodes.groups[i].y = 200;
+                        nodes.groups[i].width = GROUPS_SMALL_WIDTH;
+                        nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                     }
                     else{
-                        nodes.groups[i].x = CIRCLE_R*-1;
-                        nodes.groups[i].y = CIRCLE_R*-1;
+                        nodes.groups[i].width = 0;
+                        nodes.groups[i].height = 0;
+                        nodes.groups[i].x = 0;
+                        nodes.groups[i].y = 0;
                     }
                 }
                 break;
