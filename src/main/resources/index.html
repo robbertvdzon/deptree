@@ -183,6 +183,7 @@
             .attr("height", function(d) { return d.height })
             .attr('stroke-width', 1)
             .attr('stroke', "#000000")
+            .attr('opacity', function(d) { return d.opacity })
             .style("fill", "#EEEEEE");
         svg
             .selectAll(".groupname")
@@ -193,6 +194,7 @@
             .attr("class", "groupname")
             .attr("x", function(d) { return d.x + GROUPS_SMALL_WIDTH + 10})
             .attr("y", function(d) { return d.y +10})
+            .attr('opacity', function(d) { return d.opacity })
             .attr("transform", function(d) {
                 return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
             });
@@ -209,7 +211,8 @@
             .attr("x", function(d) { return d.x })
             .attr("y", function(d) { return d.y })
             .attr("width", function(d) { return d.width })
-            .attr("height", function(d) { return d.height });
+            .attr("height", function(d) { return d.height })
+            .attr('opacity', function(d) { return d.opacity });
         svg
             .selectAll(".groupname")
             .data(nodes.groups)
@@ -217,6 +220,7 @@
             .duration(1000)
             .attr("x", function(d) { return d.x + GROUPS_SMALL_WIDTH + 10})
             .attr("y", function(d) { return d.y +10})
+            .attr('opacity', function(d) { return d.opacity })
             .attr("transform", function(d) {
                 return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
             });
@@ -234,7 +238,9 @@
             .attr("r", CIRCLE_R)
             .attr('stroke-width', 1)
             .attr('stroke', "#000000")
-            .style("fill", "#EEEEEE");
+            .style("fill", "#EEEEEE")
+            .attr('opacity', function(d) { return d.opacity });
+
         svg
             .selectAll(".modulename")
             .data(nodes.modules)
@@ -244,6 +250,7 @@
             .attr("class", "modulename")
             .attr("x", function(d) { return d.x + CIRCLE_R + 10})
             .attr("y", function(d) { return d.y +10})
+            .attr('opacity', function(d) { return d.opacity })
             .attr("transform", function(d) {
                 return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
             })
@@ -259,6 +266,7 @@
             .duration(1000)
             .attr("cx", function(d) { return d.x })
             .attr("cy", function(d) { return d.y })
+            .attr('opacity', function(d) { return d.opacity });
         svg
             .selectAll(".modulename")
             .data(nodes.modules)
@@ -268,7 +276,9 @@
             .attr("y", function(d) { return d.y +10})
             .attr("transform", function(d) {
                 return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
-            });
+            })
+            .attr('opacity', function(d) { return d.opacity });
+
     }
 
     function initialPaintDepGroupGroup() {
@@ -387,9 +397,15 @@
                         && (groupFrom.name == selectedGroup || groupTo.name == selectedGroup)
                     ) {
                         dep.x1 = groupFrom.x+groupFrom.width/2;
-                        dep.y1 = groupFrom.y+groupFrom.height/2;
                         dep.x2 = groupTo.x+groupTo.width/2;
-                        dep.y2 = groupTo.y+groupTo.height/2;
+                        if (groupFrom.y>groupTo.y){
+                            dep.y1 = groupFrom.y;
+                            dep.y2 = groupTo.y+groupTo.height;
+                        }
+                        else{
+                            dep.y1 = groupFrom.y+groupFrom.height;
+                            dep.y2 = groupTo.y;
+                        }
                         placeXYOnEdges(dep);
                     }
                     else{
@@ -491,12 +507,19 @@
             var module = nodes.modules[j];
             if (module.group == group.name) {
                 modulesCount++;
+                if (group.angle==0){
+                    module.angle = -45;
+                }
+                else {
+                    module.angle = group.angle;
+                }
+                module.opacity = 1;
                 module.isVisible = true;
-                module.x = group.x + 10 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 2);
+                module.x = group.x + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 2);
                 module.y = group.y + 30;
             }
         }
-        group.width = GROUPS_SMALL_WIDTH + 10 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 2) + CIRCLE_R;
+        group.width = GROUPS_SMALL_WIDTH + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 2) + CIRCLE_R;
         group.height = GROUPS_SMALL_HEIGHT + 40;
     }
 
@@ -513,7 +536,8 @@
                     nodes.groups[i].y = y;
                     nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                     nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
-                    nodes.groups[i].angle = angle
+                    nodes.groups[i].angle = angle;
+                    nodes.groups[i].opacity = 1;
                     nodes.groups[i].isVisible = true;
                 }
                 break;
@@ -539,6 +563,7 @@
                 var depFromIndex = 0;
                 var depToIndex = 0;
                 var nextX = 50;
+                var nextToX = 50;
 
                 for (i = 0; i < nodes.groups.length; i++) {
                     var group = nodes.groups[i];
@@ -546,9 +571,10 @@
                     if (groupDepsFrom.indexOf(groupName)!=-1){
                         group.x = nextX;
                         group.y = 100;
-                        nodes.groups[i].angle = -45;
+                        group.angle = -45;
                         group.width = GROUPS_SMALL_WIDTH;
                         group.height = GROUPS_SMALL_HEIGHT;
+                        group.opacity = 1;
                         group.isVisible = true;
                         if (group.expanded){
                             expandWithModules(group);
@@ -557,23 +583,26 @@
                         nextX = group.x+group.width+10;
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
-                        nodes.groups[i].x = 50+depToIndex*50;
-                        nodes.groups[i].y = 300;
+                        nodes.groups[i].x = nextToX;
+                        nodes.groups[i].y = 500;
                         nodes.groups[i].angle = 45;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                        nodes.groups[i].opacity = 1;
                         nodes.groups[i].isVisible = true;
                         if (group.expanded){
                             expandWithModules(group);
                         }
                         depToIndex++;
+                        nextToX = group.x+group.width+10;
                     }
                     else if (groupName == selectedGroup){
                         nodes.groups[i].x = 200;
-                        nodes.groups[i].y = 200;
+                        nodes.groups[i].y = 300;
                         nodes.groups[i].angle = 0;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                        nodes.groups[i].opacity = 1;
                         nodes.groups[i].isVisible = true;
                         if (group.expanded){
                             expandWithModules(group);
@@ -584,6 +613,7 @@
                         nodes.groups[i].height = 0;
                         nodes.groups[i].x = 0;
                         nodes.groups[i].y = -20;
+                        nodes.groups[i].opacity = 0;
                         nodes.groups[i].isVisible = false;
                     }
                 }
@@ -597,12 +627,14 @@
                         nodes.groups[i].y = 2;
                         nodes.groups[i].width = width-4;
                         nodes.groups[i].height = height-4;
+                        nodes.groups[i].opacity = 1;
                     }
                     else{
                         nodes.groups[i].width = 0;
                         nodes.groups[i].height = 0;
                         nodes.groups[i].x = 0;
                         nodes.groups[i].y = -20;
+                        nodes.groups[i].opacity = 0;
                     }
                 }
                 break;
@@ -610,6 +642,7 @@
                 for (i = 0; i < nodes.groups.length; i++) {
                     nodes.groups[i].x = CIRCLE_R*-1;
                     nodes.groups[i].y = CIRCLE_R*-1;
+                    nodes.groups[i].opacity = 0;
                 }
                 break;
         }
@@ -620,6 +653,8 @@
             nodes.modules[i].x = CIRCLE_R*-1;
             nodes.modules[i].y = CIRCLE_R*-1;
             nodes.modules[i].isVisible = false;
+            nodes.modules[i].angle= 0;
+            nodes.modules[i].opacity = 0;
         }
     }
 
@@ -649,6 +684,7 @@
                     groupModules[i].x = x;
                     groupModules[i].y = y;
                     groupModules[i].angle = angle;
+                    groupModules[i].opacity = 1;
                     groupModules[i].isVisible = true;
                 }
                 break;
@@ -680,6 +716,7 @@
                         groupModules[i].x = 50+depFromIndex*50;
                         groupModules[i].y = 200;
                         groupModules[i].angle = -45;
+                        groupModules[i].opacity = 1;
                         groupModules[i].isVisible = true;
                         depFromIndex++;
                     }
@@ -687,6 +724,7 @@
                         groupModules[i].x = 50+depToIndex*50;
                         groupModules[i].y = 400;
                         groupModules[i].angle = 45;
+                        groupModules[i].opacity = 1;
                         groupModules[i].isVisible = true;
                         depToIndex++;
                     }
@@ -694,6 +732,7 @@
                         groupModules[i].x = 200;
                         groupModules[i].y = 300;
                         groupModules[i].angle = 0;
+                        groupModules[i].opacity = 1;
                         groupModules[i].isVisible = true;
                     }
                     else{
@@ -701,6 +740,7 @@
                         groupModules[i].height = 0;
                         groupModules[i].x = 0;
                         groupModules[i].y = -20;
+                        groupModules[i].opacity = 0;
                     }
                 }
                 break;
