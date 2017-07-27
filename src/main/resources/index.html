@@ -24,7 +24,7 @@
     }
 
 </style>
-<svg width="960" height="600"></svg>
+<svg width="960" height="800"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="jsondata.js"></script>
 <script>
@@ -42,8 +42,8 @@
     var selectedGroup = "";
     var selectedModule = "";
     var totalGroups = nodes.groups.length;
-    var radius = 250;
-    var offset = 300;
+    var radius = 150;
+    var offset = 400;
     var GROUPS_SMALL_WIDTH = 15;
     var GROUPS_SMALL_HEIGHT = 15;
     var CIRCLE_R = 15;
@@ -192,7 +192,11 @@
             .text(function(d) { return d.name })
             .attr("class", "groupname")
             .attr("x", function(d) { return d.x + GROUPS_SMALL_WIDTH + 10})
-            .attr("y", function(d) { return d.y +10});
+            .attr("y", function(d) { return d.y +10})
+            .attr("transform", function(d) {
+                return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
+            });
+
     }
 
     function repaintGroups() {
@@ -212,7 +216,10 @@
             .transition()
             .duration(1000)
             .attr("x", function(d) { return d.x + GROUPS_SMALL_WIDTH + 10})
-            .attr("y", function(d) { return d.y +10});
+            .attr("y", function(d) { return d.y +10})
+            .attr("transform", function(d) {
+                return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
+            });
     }
 
     function initialPaintModules() {
@@ -236,7 +243,12 @@
             .text(function(d) { return d.name })
             .attr("class", "modulename")
             .attr("x", function(d) { return d.x + CIRCLE_R + 10})
-            .attr("y", function(d) { return d.y +10});
+            .attr("y", function(d) { return d.y +10})
+            .attr("transform", function(d) {
+                return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
+            })
+        ;
+
     }
 
     function repaintModules() {
@@ -253,7 +265,10 @@
             .transition()
             .duration(1000)
             .attr("x", function(d) { return d.x + CIRCLE_R + 10})
-            .attr("y", function(d) { return d.y +10});
+            .attr("y", function(d) { return d.y +10})
+            .attr("transform", function(d) {
+                return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
+            });
     }
 
     function initialPaintDepGroupGroup() {
@@ -498,6 +513,7 @@
                     nodes.groups[i].y = y;
                     nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                     nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
+                    nodes.groups[i].angle = angle
                     nodes.groups[i].isVisible = true;
                 }
                 break;
@@ -529,7 +545,8 @@
                     var groupName = nodes.groups[i].name;
                     if (groupDepsFrom.indexOf(groupName)!=-1){
                         group.x = nextX;
-                        group.y = 100 - (depFromIndex%6)*20;
+                        group.y = 100;
+                        nodes.groups[i].angle = -45;
                         group.width = GROUPS_SMALL_WIDTH;
                         group.height = GROUPS_SMALL_HEIGHT;
                         group.isVisible = true;
@@ -541,7 +558,8 @@
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
                         nodes.groups[i].x = 50+depToIndex*50;
-                        nodes.groups[i].y = 300 + (depToIndex%6)*20;
+                        nodes.groups[i].y = 300;
+                        nodes.groups[i].angle = 45;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                         nodes.groups[i].isVisible = true;
@@ -553,6 +571,7 @@
                     else if (groupName == selectedGroup){
                         nodes.groups[i].x = 200;
                         nodes.groups[i].y = 200;
+                        nodes.groups[i].angle = 0;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
                         nodes.groups[i].isVisible = true;
@@ -629,6 +648,7 @@
                     var y = offset + radius * Math.sin(angle * Math.PI / 180);
                     groupModules[i].x = x;
                     groupModules[i].y = y;
+                    groupModules[i].angle = angle;
                     groupModules[i].isVisible = true;
                 }
                 break;
@@ -658,19 +678,22 @@
                     var moduleName = groupModules[i].name;
                     if (modulesDepsFrom.indexOf(moduleName)!=-1){
                         groupModules[i].x = 50+depFromIndex*50;
-                        groupModules[i].y = 100 - (depFromIndex%3)*20;
+                        groupModules[i].y = 200;
+                        groupModules[i].angle = -45;
                         groupModules[i].isVisible = true;
                         depFromIndex++;
                     }
                     else if (modulesDepsTo.indexOf(moduleName)!=-1){
                         groupModules[i].x = 50+depToIndex*50;
-                        groupModules[i].y = 300 + (depToIndex%3)*20;
+                        groupModules[i].y = 400;
+                        groupModules[i].angle = 45;
                         groupModules[i].isVisible = true;
                         depToIndex++;
                     }
                     else if (moduleName == selectedModule){
                         groupModules[i].x = 200;
-                        groupModules[i].y = 200;
+                        groupModules[i].y = 300;
+                        groupModules[i].angle = 0;
                         groupModules[i].isVisible = true;
                     }
                     else{
