@@ -42,7 +42,8 @@
     var selectedGroup = "";
     var selectedModule = "";
     var totalGroups = nodes.groups.length;
-    var radius = 150;
+    var RADIUS_GROUPS = 250;
+    var RADIUS_GROUP_MODULE = 150;
     var offset = 400;
     var GROUPS_SMALL_WIDTH = 15;
     var GROUPS_SMALL_HEIGHT = 15;
@@ -66,7 +67,7 @@
     function defineArrow() {
         svg.append("svg:defs").append("svg:marker")
             .attr("id", "triangle")
-            .attr("refX", 6)
+            .attr("refX", 12)
             .attr("refY", 6)
             .attr("markerWidth", 30)
             .attr("markerHeight", 30)
@@ -425,7 +426,8 @@
                             dep.y1 = groupFrom.y+groupFrom.height;
                             dep.y2 = groupTo.y;
                         }
-                        placeXYOnEdges(dep);
+
+//                        placeXYOnEdges(dep);
                     }
                     else{
                         dep.x1 = -1;
@@ -607,12 +609,13 @@
                 }
                 module.opacity = 1;
                 module.isVisible = true;
-                module.x = group.x + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 20);
-                module.y = group.y + 30;
+                module.x = group.x + 20 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 20);
+                module.y = group.y +10;
             }
         }
-        group.width = GROUPS_SMALL_WIDTH + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 20) + CIRCLE_R;
+        group.width = GROUPS_SMALL_WIDTH + 20 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 20) + CIRCLE_R;
         group.height = GROUPS_SMALL_HEIGHT + 40;
+        group.y = group.y - 15;
     }
 
 
@@ -622,8 +625,8 @@
             case ALL_GROUPS_DIAGRAM:
                 for (i = 0; i < nodes.groups.length; i++) {
                     var angle = (360 / totalGroups) * i;
-                    var x = offset + radius * Math.cos(angle * Math.PI / 180);
-                    var y = offset + radius * Math.sin(angle * Math.PI / 180);
+                    var x = offset + RADIUS_GROUPS * Math.cos(angle * Math.PI / 180);
+                    var y = offset + RADIUS_GROUPS * Math.sin(angle * Math.PI / 180);
                     nodes.groups[i].x = x;
                     nodes.groups[i].y = y;
                     nodes.groups[i].width = GROUPS_SMALL_WIDTH;
@@ -672,7 +675,7 @@
                             expandWithModules(group);
                         }
                         depFromIndex++;
-                        nextX = group.x+group.width+10;
+                        nextX = group.x+group.width+25;
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
                         nodes.groups[i].x = nextToX;
@@ -686,7 +689,7 @@
                             expandWithModules(group);
                         }
                         depToIndex++;
-                        nextToX = group.x+group.width+10;
+                        nextToX = group.x+group.width+25;
                     }
                     else if (groupName == selectedGroup){
                         nodes.groups[i].x = 200;
@@ -771,8 +774,8 @@
             case GROUP_MODULES_DIAGRAM:
                 for (i = 0; i < groupModules.length; i++) {
                     var angle = (360 / totalModules) * i;
-                    var x = offset + radius * Math.cos(angle * Math.PI / 180);
-                    var y = offset + radius * Math.sin(angle * Math.PI / 180);
+                    var x = offset + RADIUS_GROUP_MODULE * Math.cos(angle * Math.PI / 180);
+                    var y = offset + RADIUS_GROUP_MODULE * Math.sin(angle * Math.PI / 180);
                     groupModules[i].x = x;
                     groupModules[i].y = y;
                     groupModules[i].angle = angle;
