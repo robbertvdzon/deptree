@@ -46,7 +46,7 @@
     var offset = 400;
     var GROUPS_SMALL_WIDTH = 15;
     var GROUPS_SMALL_HEIGHT = 15;
-    var CIRCLE_R = 15;
+    var CIRCLE_R = 10;
 
     defineArrow();
     resetModules();
@@ -246,7 +246,7 @@
             .data(nodes.modules)
             .enter()
             .append("text")
-            .text(function(d) { return d.name })
+            .text(function(d) { return getArtifactName(d.name) })
             .attr("class", "modulename")
             .attr("x", function(d) { return d.x + CIRCLE_R + 10})
             .attr("y", function(d) { return d.y +10})
@@ -256,6 +256,11 @@
             })
         ;
 
+    }
+
+    function getArtifactName(name) {
+        var names = name.split(":");
+        return names[1];
     }
 
     function repaintModules() {
