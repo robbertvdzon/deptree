@@ -54,10 +54,14 @@
     positionModules();
     positionDepGroupGroups();
     positionDepModuleModule();
+    positionDepGroupModule();
+    positionDepModuleGroup();
     initialPaintGroups();
     initialPaintModules();
     initialPaintDepGroupGroup();
     initialPaintDepModuleModule();
+    initialPaintDepGroupModule();
+    initialPaintDepModuleGroup();
 
     function defineArrow() {
         svg.append("svg:defs").append("svg:marker")
@@ -129,10 +133,14 @@
         positionModules();
         positionDepGroupGroups();
         positionDepModuleModule();
+        positionDepGroupModule();
+        positionDepModuleGroup();
         repaintGroups();
         repaintModules();
         repaintDepGroupGroup();
         repaintDepModuleModule();
+        repaintDepGroupModule();
+        repaintDepModuleGroup();
     });
 
     function findSelectedGroup(coords) {
@@ -287,40 +295,44 @@
     }
 
     function initialPaintDepGroupGroup() {
-        svg
-            .selectAll(".depgroupgroup")
-            .data(nodes.depGroupGroups)
-            .enter()
-            .append("line")
-            .attr("class", "depgroupgroup")
-            .attr("x1", function(d) { return d.x1 })
-            .attr("y1", function(d) { return d.y1 })
-            .attr("x2", function(d) { return d.x2 })
-            .attr("y2", function(d) { return d.y2 })
-            .attr("marker-end", "url(#triangle)")
-            .attr("stroke-width", 1)
-            .attr("stroke", "black");
+        initialPaintDependencies("depgroupgroup",nodes.depGroupGroups);
     }
 
     function repaintDepGroupGroup() {
-        svg
-            .selectAll(".depgroupgroup")
-            .data(nodes.depGroupGroups)
-            .transition()
-            .duration(1000)
-            .attr("x1", function(d) { return d.x1 })
-            .attr("y1", function(d) { return d.y1 })
-            .attr("x2", function(d) { return d.x2 })
-            .attr("y2", function(d) { return d.y2 });
+        repaintDependencies("depgroupgroup",nodes.depGroupGroups);
     }
 
     function initialPaintDepModuleModule() {
+        initialPaintDependencies("depmodulemodule",nodes.depModuleModules);
+    }
+
+    function repaintDepModuleModule() {
+        repaintDependencies("depmodulemodule",nodes.depModuleModules);
+    }
+
+    function initialPaintDepGroupModule() {
+        initialPaintDependencies("depgroupmodule",nodes.depGroupModules);
+    }
+
+    function repaintDepGroupModule() {
+        repaintDependencies("depgroupmodule",nodes.depGroupModules);
+    }
+
+    function initialPaintDepModuleGroup() {
+        initialPaintDependencies("depmodulegroup",nodes.depModuleGroups);
+    }
+
+    function repaintDepModuleGroup() {
+        repaintDependencies("depmodulegroup",nodes.depModuleGroups);
+    }
+
+    function initialPaintDependencies(name, collection) {
         svg
-            .selectAll(".depmodulemodule")
-            .data(nodes.depModuleModules)
+            .selectAll("."+name)
+            .data(collection)
             .enter()
             .append("line")
-            .attr("class", "depmodulemodule")
+            .attr("class", name)
             .attr("x1", function(d) { return d.x1 })
             .attr("y1", function(d) { return d.y1 })
             .attr("x2", function(d) { return d.x2 })
@@ -330,10 +342,10 @@
             .attr("stroke", "black");
     }
 
-    function repaintDepModuleModule() {
+    function repaintDependencies(name, collection) {
         svg
-            .selectAll(".depmodulemodule")
-            .data(nodes.depModuleModules)
+            .selectAll("."+name)
+            .data(collection)
             .transition()
             .duration(1000)
             .attr("x1", function(d) { return d.x1 })
@@ -384,10 +396,10 @@
                     var dep = nodes.depGroupGroups[i];
                     var groupFrom = groupCache[dep.from];
                     var groupTo = groupCache[dep.to];
-                    dep.x1 = groupFrom.x+groupFrom.width/2;
-                    dep.y1 = groupFrom.y+groupFrom.height/2;
-                    dep.x2 = groupTo.x+groupTo.width/2;
-                    dep.y2 = groupTo.y+groupTo.height/2;
+                    dep.x1 = groupFrom.x + groupFrom.width / 2;
+                    dep.y1 = groupFrom.y + groupFrom.height / 2;
+                    dep.x2 = groupTo.x + groupTo.width / 2;
+                    dep.y2 = groupTo.y + groupTo.height / 2;
                     placeXYOnEdges(dep);
                 }
                 break;
@@ -399,6 +411,8 @@
                     if (
                         groupFrom.isVisible
                         && groupTo.isVisible
+                        && !groupFrom.expanded
+                        && !groupTo.expanded
                         && (groupFrom.name == selectedGroup || groupTo.name == selectedGroup)
                     ) {
                         dep.x1 = groupFrom.x+groupFrom.width/2;
@@ -506,6 +520,81 @@
         }
     }
 
+    function positionDepGroupModule(){
+        var moduleCache = createModuleArray();
+        var groupCache = createGroupArray();
+        for (i = 0; i < nodes.depGroupModules.length; i++) {
+            var dep = nodes.depGroupModules[i];
+            dep.x1 = -1;
+            dep.y1 = -1;
+            dep.x2 = -1;
+            dep.y2 = -1;
+        }
+        switch (state) {
+            case SELECTED_GROUPS_DIAGRAM:
+                for (i = 0; i < nodes.depGroupModules.length; i++) {
+                    var dep = nodes.depGroupModules[i];
+                    var groupFrom = groupCache[dep.from];
+                    var moduleTo = moduleCache[dep.to];
+                    if (groupFrom == selectedGroup){
+                        var x = 1;
+                    }
+                    if (
+                        groupFrom.isVisible
+                        && moduleTo.isVisible
+                        && ((moduleTo.group == selectedGroup) || (groupFrom.name == selectedGroup))
+                        && (moduleTo.group != groupFrom.name)
+                    ) {
+                        dep.x1 = groupFrom.x;
+                        dep.y1 = groupFrom.y;
+                        dep.x2 = moduleTo.x;
+                        dep.y2 = moduleTo.y;
+                        placeXYOnEdges(dep);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    function positionDepModuleGroup(){
+        var moduleCache = createModuleArray();
+        var groupCache = createGroupArray();
+        for (i = 0; i < nodes.depModuleGroups.length; i++) {
+            var dep = nodes.depModuleGroups[i];
+            dep.x1 = -1;
+            dep.y1 = -1;
+            dep.x2 = -1;
+            dep.y2 = -1;
+        }
+        switch (state) {
+            case SELECTED_GROUPS_DIAGRAM:
+                for (i = 0; i < nodes.depModuleGroups.length; i++) {
+                    var dep = nodes.depModuleGroups[i];
+                    var moduleFrom = moduleCache[dep.from];
+                    var groupTo = groupCache[dep.to];
+                    if (
+                        moduleFrom.isVisible
+                        && groupTo.isVisible
+                        && ((moduleFrom.group == selectedGroup) || (groupTo.name == selectedGroup))
+
+                        && (moduleFrom.group != groupTo.name)
+                    ) {
+                        dep.x1 = moduleFrom.x;
+                        dep.y1 = moduleFrom.y;
+                        dep.x2 = groupTo.x;
+                        dep.y2 = groupTo.y;
+                        placeXYOnEdges(dep);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+
     function expandWithModules(group) {
         var modulesCount = 0;
         for (j = 0; j < nodes.modules.length; j++) {
@@ -520,11 +609,11 @@
                 }
                 module.opacity = 1;
                 module.isVisible = true;
-                module.x = group.x + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 2);
+                module.x = group.x + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 20);
                 module.y = group.y + 30;
             }
         }
-        group.width = GROUPS_SMALL_WIDTH + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 2) + CIRCLE_R;
+        group.width = GROUPS_SMALL_WIDTH + 40 + CIRCLE_R + (modulesCount - 1) * (CIRCLE_R * 2 + 20) + CIRCLE_R;
         group.height = GROUPS_SMALL_HEIGHT + 40;
     }
 
