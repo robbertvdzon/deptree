@@ -7,7 +7,7 @@
 
     <groupId>com.vdzon.maven.plugin</groupId>
     <artifactId>deptree</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>maven-plugin</packaging>
 
     <properties>
