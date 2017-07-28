@@ -22,21 +22,13 @@
                     var dep = nodes.depModuleModules[i];
                     var moduleFrom = moduleCache[dep.from];
                     var moduleTo = moduleCache[dep.to];
-
                     if (
                         moduleFrom.isVisible
                         && moduleTo.isVisible
                         && ((moduleTo.group == selectedGroup) || (moduleFrom.group == selectedGroup))
                         && (moduleTo.group != moduleFrom.group)
                     ) {
-                        var moduleFromCenter = centerOfModule(moduleFrom);
-                        var moduleToCenter = centerOfModule(moduleTo);
-                        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
-                        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
-                        dep.x1 = moduleFromEdge.x;
-                        dep.y1 = moduleFromEdge.y;
-                        dep.x2 = moduleToEdge.x;
-                        dep.y2 = moduleToEdge.y;
+                        setDepModuleModuleCoordinates(moduleFrom, moduleTo, dep);
                     }
                 }
                 break;
@@ -49,14 +41,7 @@
                         moduleFrom.isVisible
                         && moduleTo.isVisible
                     ) {
-                        var moduleFromCenter = centerOfModule(moduleFrom);
-                        var moduleToCenter = centerOfModule(moduleTo);
-                        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
-                        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
-                        dep.x1 = moduleFromEdge.x;
-                        dep.y1 = moduleFromEdge.y;
-                        dep.x2 = moduleToEdge.x;
-                        dep.y2 = moduleToEdge.y;
+                        setDepModuleModuleCoordinates(moduleFrom, moduleTo, dep);
                     }
                 }
                 break;
@@ -70,17 +55,20 @@
                         && moduleTo.isVisible
                         && (moduleFrom.name == selectedModule || moduleTo.name == selectedModule)
                     ) {
-                        var moduleFromCenter = centerOfModule(moduleFrom);
-                        var moduleToCenter = centerOfModule(moduleTo);
-                        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
-                        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
-                        dep.x1 = moduleFromEdge.x;
-                        dep.y1 = moduleFromEdge.y;
-                        dep.x2 = moduleToEdge.x;
-                        dep.y2 = moduleToEdge.y;
+                        setDepModuleModuleCoordinates(moduleFrom, moduleTo, dep);
                     }
                 }
                 break;
         }
     }
 
+    function setDepModuleModuleCoordinates(moduleFrom, moduleTo, dep){
+        var moduleFromCenter = centerOfModule(moduleFrom);
+        var moduleToCenter = centerOfModule(moduleTo);
+        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
+        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
+        dep.x1 = moduleFromEdge.x;
+        dep.y1 = moduleFromEdge.y;
+        dep.x2 = moduleToEdge.x;
+        dep.y2 = moduleToEdge.y;
+    }

@@ -23,7 +23,7 @@
                     var dep = nodes.depGroupGroups[i];
                     var groupFrom = groupCache[dep.from];
                     var groupTo = groupCache[dep.to];
-                    setDepCoor(groupFrom, groupTo, dep);
+                    setDepGroupGroupCoordinates(groupFrom, groupTo, dep);
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
@@ -38,7 +38,7 @@
                         && !groupTo.expanded
                         && (groupFrom.name == selectedGroup || groupTo.name == selectedGroup)
                     ) {
-                        setDepCoor(groupFrom, groupTo, dep);
+                        setDepGroupGroupCoordinates(groupFrom, groupTo, dep);
                     }
                 }
                 break;
@@ -48,7 +48,7 @@
         }
     }
 
-    function setDepCoor(groupFrom, groupTo, dep){
+    function setDepGroupGroupCoordinates(groupFrom, groupTo, dep){
         var groupFromCenter = centerOfGroup(groupFrom);
         var groupToCenter = centerOfGroup(groupTo);
         dep.x1 = groupFromCenter.x;

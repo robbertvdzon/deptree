@@ -29,18 +29,22 @@
 
                         && (moduleFrom.group != groupTo.name)
                     ) {
-                        var moduleFromCenter = centerOfModule(moduleFrom);
-                        var groupToCenter = centerOfGroup(groupTo);
-                        dep.x1 = moduleFromCenter.x;
-                        dep.y1 = moduleFromCenter.y;
-                        dep.x2 = groupToCenter.x;
-                        dep.y2 = groupToCenter.y;
+                        setDepModuleGroupCoordinates(moduleFrom, groupTo, dep);
                     }
                 }
                 break;
             default:
                 break;
         }
+    }
+
+    function setDepModuleGroupCoordinates(moduleFrom, groupTo, dep){
+        var moduleFromCenter = centerOfModule(moduleFrom);
+        var groupToCenter = centerOfGroup(groupTo);
+        dep.x1 = moduleFromCenter.x;
+        dep.y1 = moduleFromCenter.y;
+        dep.x2 = groupToCenter.x;
+        dep.y2 = groupToCenter.y;
     }
 
 
