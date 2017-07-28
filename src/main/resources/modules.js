@@ -20,8 +20,8 @@
             .append("text")
             .text(function(d) { return getArtifactName(d.name) })
             .attr("class", "modulename")
-            .attr("x", function(d) { return d.x + CIRCLE_R + 10})
-            .attr("y", function(d) { return d.y +10})
+            .attr("x", function(d) { return d.x+20})
+            .attr("y", function(d) { return d.y})
             .attr('opacity', function(d) { return d.opacity })
             .attr("transform", function(d) {
                 return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
@@ -49,8 +49,8 @@
             .data(nodes.modules)
             .transition()
             .duration(1000)
-            .attr("x", function(d) { return d.x + CIRCLE_R + 10})
-            .attr("y", function(d) { return d.y +10})
+            .attr("x", function(d) { return d.x+20})
+            .attr("y", function(d) { return d.y})
             .attr("transform", function(d) {
                 return "rotate("+d.angle+","+d.x+" ,"+ d.y+")"
             })
