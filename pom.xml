@@ -5,6 +5,10 @@
 >
     <modelVersion>4.0.0</modelVersion>
 
+    <name>deptree Maven Plugin</name>
+
+    <url>http://www.vdzon.com</url>
+
     <groupId>com.vdzon.maven.plugin</groupId>
     <artifactId>deptree</artifactId>
     <version>1.0.2</version>
