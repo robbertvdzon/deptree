@@ -85,13 +85,21 @@
     }
 
 
+    var lastHighlightedModule = "";
+
     svg.on("click", function () {
         var coords = d3.mouse(this);
 
         if (d3.event.shiftKey) {
             var clickedModule = findSelectedModule(coords);
             if (clickedModule != null) {
-                highlightModule(clickedModule);
+                if (lastHighlightedModule != clickedModule){
+                    lastHighlightedModule = clickedModule;
+                }
+                else{
+                    lastHighlightedModule = "";
+                }
+                highlightModule(lastHighlightedModule);
                 return;
             }
         }
@@ -144,6 +152,10 @@
                 }
                 break;
         }
+        repaintAll();
+    });
+
+    function repaintAll(){
         resetModules();
         positionGroups();
         positionModules();
@@ -157,7 +169,7 @@
         repaintDepModuleModule();
         repaintDepGroupModule();
         repaintDepModuleGroup();
-    });
+    }
 
     function findSelectedGroup(coords) {
         for (i = 0; i < nodes.groups.length; i++) {
@@ -239,20 +251,35 @@
     function highlightModule(moduleName){
         for (i = 0; i < nodes.depGroupModules.length; i++) {
             var dep = nodes.depGroupModules[i];
-            if (dep.to != moduleName){
-                dep.opacity = 0;
+            if (dep.to != moduleName && moduleName!=""){
+                dep.highlight = false;
+                dep.dimmed = true;
+            }
+            else{
+                dep.highlight = true;
+                dep.dimmed = false;
             }
         }
         for (i = 0; i < nodes.depModuleGroups.length; i++) {
             var dep = nodes.depModuleGroups[i];
-            if (dep.from != moduleName){
-                dep.opacity = 0;
+            if (dep.from != moduleName && moduleName!=""){
+                dep.highlight = false;
+                dep.dimmed = true;
+            }
+            else{
+                dep.highlight = true;
+                dep.dimmed = false;
             }
         }
         for (i = 0; i < nodes.depModuleModules.length; i++) {
             var dep = nodes.depModuleModules[i];
-            if (dep.from != moduleName && dep.to != moduleName){
-                dep.opacity = 0;
+            if (dep.from != moduleName && dep.to != moduleName  && moduleName!=""){
+                dep.highlight = false;
+                dep.dimmed = true;
+            }
+            else{
+                dep.highlight = true;
+                dep.dimmed = false;
             }
         }
 
