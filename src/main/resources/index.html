@@ -88,6 +88,14 @@
     svg.on("click", function () {
         var coords = d3.mouse(this);
 
+        if (d3.event.shiftKey) {
+            var clickedModule = findSelectedModule(coords);
+            if (clickedModule != null) {
+                highlightModule(clickedModule);
+                return;
+            }
+        }
+
         switch (state) {
             case ALL_GROUPS_DIAGRAM:
                 var clickedGroup = findSelectedGroup(coords);
@@ -226,6 +234,32 @@
         point.x = x - xOffset * percOff;
         point.y = y - yOffset * percOff;
         return point;
+    }
+
+    function highlightModule(moduleName){
+        for (i = 0; i < nodes.depGroupModules.length; i++) {
+            var dep = nodes.depGroupModules[i];
+            if (dep.to != moduleName){
+                dep.opacity = 0;
+            }
+        }
+        for (i = 0; i < nodes.depModuleGroups.length; i++) {
+            var dep = nodes.depModuleGroups[i];
+            if (dep.from != moduleName){
+                dep.opacity = 0;
+            }
+        }
+        for (i = 0; i < nodes.depModuleModules.length; i++) {
+            var dep = nodes.depModuleModules[i];
+            if (dep.from != moduleName && dep.to != moduleName){
+                dep.opacity = 0;
+            }
+        }
+
+        repaintDepModuleModule();
+        repaintDepGroupModule();
+        repaintDepModuleGroup();
+
     }
 
 

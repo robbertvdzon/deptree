@@ -11,6 +11,7 @@
             .attr("y2", function(d) { return d.y2 })
             .attr("marker-end", "url(#triangle)")
             .attr("stroke-width", 1)
+            .attr('opacity', function(d) { return d.opacity })
             .attr("stroke", "black");
     }
 
@@ -23,7 +24,8 @@
             .attr("x1", function(d) { return d.x1 })
             .attr("y1", function(d) { return d.y1 })
             .attr("x2", function(d) { return d.x2 })
-            .attr("y2", function(d) { return d.y2 });
+            .attr("y2", function(d) { return d.y2 })
+            .attr('opacity', function(d) { return d.opacity });
     }
 
     function centerOfGroup(group){
