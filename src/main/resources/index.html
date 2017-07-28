@@ -184,7 +184,6 @@
             }
         }
     }
-
     function createGroupArray(){
         var allGroups = {};
         for (i = 0; i < nodes.groups.length; i++) {
@@ -203,20 +202,23 @@
         return allModules;
     }
 
-    function placeXYOnEdges(dep){
-        var xOffset = dep.x1 - dep.x2;
-        var yOffset = dep.y1 - dep.y2;
-        var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
-        if (leng==0) return;
-        var percOff = 20 / leng;
-        var newX1 = dep.x1 - xOffset * percOff;
-        var newY1 = dep.y1 - yOffset * percOff;
-        var newX2 = dep.x2 + xOffset * percOff;
-        var newY2 = dep.y2 + yOffset * percOff;
-        dep.x1 = newX1;
-        dep.y1 = newY1;
-        dep.x2 = newX2;
-        dep.y2 = newY2;
-    }
+    /*
+        function placeXYOnEdges(dep){
+        function placeXYOnEdges(dep){
+            var xOffset = dep.x1 - dep.x2;
+            var yOffset = dep.y1 - dep.y2;
+            var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+            if (leng==0) return;
+            var percOff = 20 / leng;
+            var newX1 = dep.x1 - xOffset * percOff;
+            var newY1 = dep.y1 - yOffset * percOff;
+            var newX2 = dep.x2 + xOffset * percOff;
+            var newY2 = dep.y2 + yOffset * percOff;
+            dep.x1 = newX1;
+            dep.y1 = newY1;
+            dep.x2 = newX2;
+            dep.y2 = newY2;
+        }
+        */
 
 </script>

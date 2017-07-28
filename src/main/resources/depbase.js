@@ -25,3 +25,17 @@
             .attr("x2", function(d) { return d.x2 })
             .attr("y2", function(d) { return d.y2 });
     }
+
+    function centerOfGroup(group){
+        var point = {};
+        point.x = group.x+group.width/2;
+        point.y = group.y+group.height/2;
+        return point;
+    }
+
+    function centerOfModule(module){
+        var point = {};
+        point.x = module.x;
+        point.y = module.y;
+        return point;
+    }

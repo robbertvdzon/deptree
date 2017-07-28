@@ -7,6 +7,15 @@
     }
 
     function positionDepGroupGroups(){
+        // reset all groups
+        for (i = 0; i < nodes.depGroupGroups.length; i++) {
+            var dep = nodes.depGroupGroups[i];
+            dep.x1 = -1;
+            dep.y1 = -1;
+            dep.x2 = -1;
+            dep.y2 = -1;
+        }
+
         var groupCache = createGroupArray();
         switch (state) {
             case ALL_GROUPS_DIAGRAM:
@@ -14,11 +23,7 @@
                     var dep = nodes.depGroupGroups[i];
                     var groupFrom = groupCache[dep.from];
                     var groupTo = groupCache[dep.to];
-                    dep.x1 = groupFrom.x + groupFrom.width / 2;
-                    dep.y1 = groupFrom.y + groupFrom.height / 2;
-                    dep.x2 = groupTo.x + groupTo.width / 2;
-                    dep.y2 = groupTo.y + groupTo.height / 2;
-                    placeXYOnEdges(dep);
+                    setDepCoor(groupFrom, groupTo, dep);
                 }
                 break;
             case SELECTED_GROUPS_DIAGRAM:
@@ -33,36 +38,21 @@
                         && !groupTo.expanded
                         && (groupFrom.name == selectedGroup || groupTo.name == selectedGroup)
                     ) {
-                        dep.x1 = groupFrom.x+groupFrom.width/2;
-                        dep.x2 = groupTo.x+groupTo.width/2;
-                        if (groupFrom.y>groupTo.y){
-                            dep.y1 = groupFrom.y;
-                            dep.y2 = groupTo.y+groupTo.height;
-                        }
-                        else{
-                            dep.y1 = groupFrom.y+groupFrom.height;
-                            dep.y2 = groupTo.y;
-                        }
-
-//                        placeXYOnEdges(dep);
-                    }
-                    else{
-                        dep.x1 = -1;
-                        dep.y1 = -1;
-                        dep.x2 = -1;
-                        dep.y2 = -1;
+                        setDepCoor(groupFrom, groupTo, dep);
                     }
                 }
                 break;
             case GROUP_MODULES_DIAGRAM:
             case SELECTED_MODULE_DIAGRAM:
-                for (i = 0; i < nodes.depGroupGroups.length; i++) {
-                    var dep = nodes.depGroupGroups[i];
-                    dep.x1 = -1;
-                    dep.y1 = -1;
-                    dep.x2 = -1;
-                    dep.y2 = -1;
-                }
                 break;
         }
+    }
+
+    function setDepCoor(groupFrom, groupTo, dep){
+        var groupFromCenter = centerOfGroup(groupFrom);
+        var groupToCenter = centerOfGroup(groupTo);
+        dep.x1 = groupFromCenter.x;
+        dep.y1 = groupFromCenter.y;
+        dep.x2 = groupToCenter.x;
+        dep.y2 = groupToCenter.y;
     }

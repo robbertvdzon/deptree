@@ -29,11 +29,12 @@
                         && ((moduleTo.group == selectedGroup) || (moduleFrom.group == selectedGroup))
                         && (moduleTo.group != moduleFrom.group)
                     ) {
-                        dep.x1 = moduleFrom.x;
-                        dep.y1 = moduleFrom.y;
-                        dep.x2 = moduleTo.x;
-                        dep.y2 = moduleTo.y;
-                        placeXYOnEdges(dep);
+                        var moduleFromCenter = centerOfModule(moduleFrom);
+                        var moduleToCenter = centerOfModule(moduleTo);
+                        dep.x1 = moduleFromCenter.x;
+                        dep.y1 = moduleFromCenter.y;
+                        dep.x2 = moduleToCenter.x;
+                        dep.y2 = moduleToCenter.y;
                     }
                 }
                 break;
@@ -46,13 +47,13 @@
                         moduleFrom.isVisible
                         && moduleTo.isVisible
                     ) {
-                        dep.x1 = moduleFrom.x;
-                        dep.y1 = moduleFrom.y;
-                        dep.x2 = moduleTo.x;
-                        dep.y2 = moduleTo.y;
-                        placeXYOnEdges(dep);
+                        var moduleFromCenter = centerOfModule(moduleFrom);
+                        var moduleToCenter = centerOfModule(moduleTo);
+                        dep.x1 = moduleFromCenter.x;
+                        dep.y1 = moduleFromCenter.y;
+                        dep.x2 = moduleToCenter.x;
+                        dep.y2 = moduleToCenter.y;
                     }
-                    placeXYOnEdges(dep);
                 }
                 break;
             case SELECTED_MODULE_DIAGRAM:
@@ -65,11 +66,12 @@
                         && moduleTo.isVisible
                         && (moduleFrom.name == selectedModule || moduleTo.name == selectedModule)
                     ) {
-                        dep.x1 = moduleFrom.x;
-                        dep.y1 = moduleFrom.y;
-                        dep.x2 = moduleTo.x;
-                        dep.y2 = moduleTo.y;
-                        placeXYOnEdges(dep);
+                        var moduleFromCenter = centerOfModule(moduleFrom);
+                        var moduleToCenter = centerOfModule(moduleTo);
+                        dep.x1 = moduleFromCenter.x;
+                        dep.y1 = moduleFromCenter.y;
+                        dep.x2 = moduleToCenter.x;
+                        dep.y2 = moduleToCenter.y;
                     }
                 }
                 break;

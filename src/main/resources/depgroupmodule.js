@@ -29,12 +29,12 @@
                         && ((moduleTo.group == selectedGroup) || (groupFrom.name == selectedGroup))
                         && (moduleTo.group != groupFrom.name)
                     ) {
-                        dep.x1 = groupFrom.x;
-                        dep.y1 = groupFrom.y;
-                        dep.x2 = moduleTo.x;
-                        dep.y2 = moduleTo.y;
-                        placeXYOnEdges(dep);
-                    }
+                        var groupFromCenter = centerOfGroup(groupFrom);
+                        var moduleToCenter = centerOfModule(moduleTo);
+                        dep.x1 = groupFromCenter.x;
+                        dep.y1 = groupFromCenter.y;
+                        dep.x2 = moduleToCenter.x;
+                        dep.y2 = moduleToCenter.y;                    }
                 }
                 break;
             default:
