@@ -39,12 +39,15 @@
     }
 
     function setDepModuleGroupCoordinates(moduleFrom, groupTo, dep){
+        var moduleFromCenter = centerOfModule(moduleFrom);
         var groupToCenter = centerOfGroup(groupTo);
         var moduleFromEdge = getEdgeOfModule(moduleFrom, groupToCenter);
+        var groupToEdge = getEdgeOfGroup(groupTo, moduleFromCenter);
+
         dep.x1 = moduleFromEdge.x;
         dep.y1 = moduleFromEdge.y;
-        dep.x2 = groupToCenter.x;
-        dep.y2 = groupToCenter.y;
+        dep.x2 = groupToEdge.x;
+        dep.y2 = groupToEdge.y;
     }
 
 

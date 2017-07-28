@@ -51,8 +51,11 @@
     function setDepGroupGroupCoordinates(groupFrom, groupTo, dep){
         var groupFromCenter = centerOfGroup(groupFrom);
         var groupToCenter = centerOfGroup(groupTo);
-        dep.x1 = groupFromCenter.x;
-        dep.y1 = groupFromCenter.y;
-        dep.x2 = groupToCenter.x;
-        dep.y2 = groupToCenter.y;
+        var groupFromEdge = getEdgeOfGroup(groupFrom, groupToCenter);
+        var groupToEdge = getEdgeOfGroup(groupTo, groupFromCenter);
+
+        dep.x1 = groupFromEdge.x;
+        dep.y1 = groupFromEdge.y;
+        dep.x2 = groupToEdge.x;
+        dep.y2 = groupToEdge.y;
     }
