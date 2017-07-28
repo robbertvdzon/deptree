@@ -202,8 +202,19 @@
         return allModules;
     }
 
+    function getEdgeOfModule(module, otherEdge){
+        var xOffset = module.x - otherEdge.x;
+        var yOffset = module.y - otherEdge.y;
+        var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+        if (leng==0) return;
+        var percOff = CIRCLE_R / leng;
+        var point = {};
+        point.x = module.x - xOffset * percOff;
+        point.y = module.y - yOffset * percOff;
+        return point;
+    }
+
     /*
-        function placeXYOnEdges(dep){
         function placeXYOnEdges(dep){
             var xOffset = dep.x1 - dep.x2;
             var yOffset = dep.y1 - dep.y2;

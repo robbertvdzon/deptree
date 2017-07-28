@@ -31,10 +31,12 @@
                     ) {
                         var moduleFromCenter = centerOfModule(moduleFrom);
                         var moduleToCenter = centerOfModule(moduleTo);
-                        dep.x1 = moduleFromCenter.x;
-                        dep.y1 = moduleFromCenter.y;
-                        dep.x2 = moduleToCenter.x;
-                        dep.y2 = moduleToCenter.y;
+                        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
+                        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
+                        dep.x1 = moduleFromEdge.x;
+                        dep.y1 = moduleFromEdge.y;
+                        dep.x2 = moduleToEdge.x;
+                        dep.y2 = moduleToEdge.y;
                     }
                 }
                 break;
@@ -49,10 +51,12 @@
                     ) {
                         var moduleFromCenter = centerOfModule(moduleFrom);
                         var moduleToCenter = centerOfModule(moduleTo);
-                        dep.x1 = moduleFromCenter.x;
-                        dep.y1 = moduleFromCenter.y;
-                        dep.x2 = moduleToCenter.x;
-                        dep.y2 = moduleToCenter.y;
+                        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
+                        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
+                        dep.x1 = moduleFromEdge.x;
+                        dep.y1 = moduleFromEdge.y;
+                        dep.x2 = moduleToEdge.x;
+                        dep.y2 = moduleToEdge.y;
                     }
                 }
                 break;
@@ -68,10 +72,12 @@
                     ) {
                         var moduleFromCenter = centerOfModule(moduleFrom);
                         var moduleToCenter = centerOfModule(moduleTo);
-                        dep.x1 = moduleFromCenter.x;
-                        dep.y1 = moduleFromCenter.y;
-                        dep.x2 = moduleToCenter.x;
-                        dep.y2 = moduleToCenter.y;
+                        var moduleFromEdge = getEdgeOfModule(moduleFrom, moduleToCenter);
+                        var moduleToEdge = getEdgeOfModule(moduleToCenter, moduleFromCenter);
+                        dep.x1 = moduleFromEdge.x;
+                        dep.y1 = moduleFromEdge.y;
+                        dep.x2 = moduleToEdge.x;
+                        dep.y2 = moduleToEdge.y;
                     }
                 }
                 break;
