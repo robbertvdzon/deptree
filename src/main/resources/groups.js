@@ -160,6 +160,7 @@
                         nodes.groups[i].isVisible = true;
                         if (group.expanded){
                             expandWithModules(group);
+                            nodes.groups[i].angle = -45;
                         }
                     }
                     else{
