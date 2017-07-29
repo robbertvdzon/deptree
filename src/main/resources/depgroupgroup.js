@@ -14,6 +14,9 @@
             dep.y1 = -1;
             dep.x2 = -1;
             dep.y2 = -1;
+            dep.opacity = 1;
+            dep.highlight = false;
+            dep.dimmed = false;
         }
 
         var groupCache = createGroupArray();

@@ -174,25 +174,25 @@
                 }
                 break;
             case GROUP_MODULES_DIAGRAM:
-            case SELECTED_MODULE_DIAGRAM:
-                for (i = 0; i < nodes.groups.length; i++) {
-                    var groupName = nodes.groups[i].name;
-                    if (groupName == selectedGroup){
-                        nodes.groups[i].x = 2;
-                        nodes.groups[i].y = 2;
-                        nodes.groups[i].width = width-4;
-                        nodes.groups[i].height = height-4;
-                        nodes.groups[i].opacity = 1;
-                    }
-                    else{
-                        nodes.groups[i].width = 0;
-                        nodes.groups[i].height = 0;
-                        nodes.groups[i].x = 0;
-                        nodes.groups[i].y = -20;
-                        nodes.groups[i].opacity = 0;
-                    }
+            for (i = 0; i < nodes.groups.length; i++) {
+                var groupName = nodes.groups[i].name;
+                if (groupName == selectedGroup){
+                    nodes.groups[i].x = 2;
+                    nodes.groups[i].y = 2;
+                    nodes.groups[i].width = width-4;
+                    nodes.groups[i].height = height-4;
+                    nodes.groups[i].opacity = 1;
                 }
-                break;
+                else{
+                    nodes.groups[i].width = 0;
+                    nodes.groups[i].height = 0;
+                    nodes.groups[i].x = 0;
+                    nodes.groups[i].y = -20;
+                    nodes.groups[i].opacity = 0;
+                }
+            }
+            break;
+            case SELECTED_MODULE_DIAGRAM:
             default:
                 for (i = 0; i < nodes.groups.length; i++) {
                     nodes.groups[i].x = CIRCLE_R*-1;

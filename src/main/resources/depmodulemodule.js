@@ -12,6 +12,9 @@
             dep.y1 = -1;
             dep.x2 = -1;
             dep.y2 = -1;
+            dep.opacity = 1;
+            dep.highlight = false;
+            dep.dimmed = false;
         }
         var moduleCache = createModuleArray();
         switch (state) {
@@ -53,9 +56,12 @@
                     if (
                         moduleFrom.isVisible
                         && moduleTo.isVisible
-                        && (moduleFrom.name == selectedModule || moduleTo.name == selectedModule)
+                         && (moduleFrom.name == selectedModule || moduleTo.name == selectedModule)
                     ) {
                         setDepModuleModuleCoordinates(moduleFrom, moduleTo, dep);
+                        if (moduleFrom.group != moduleTo.group){
+                            dep.opacity = 0.3;
+                        }
                     }
                 }
                 break;

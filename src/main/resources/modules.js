@@ -70,6 +70,8 @@
 
     function positionModules() {
         var groupModules = [];
+        var moduleCache = createModuleArray();
+        var selectedModuleObject = moduleCache[selectedModule];
         for (i = 0; i < nodes.modules.length; i++) {
             var module = nodes.modules[i];
             if (module.group == selectedGroup) {
@@ -117,40 +119,26 @@
                         }
                     }
                 }
-                var depFromIndex = 0;
-                var depToIndex = 0;
+                var processData = {};
+                processData.depFromIndex = 0;
+                processData.depToIndex = 0;
+                processData.modulesToList = groupModules;
+                processData.modulesDepsFrom = modulesDepsFrom;
+                processData.modulesDepsTo = modulesDepsTo;
+                processData.selectedModuleObject = selectedModuleObject;
 
+
+                var processedModules = {};
                 for (i = 0; i < groupModules.length; i++) {
-                    var moduleName = groupModules[i].name;
-                    if (modulesDepsFrom.indexOf(moduleName)!=-1){
-                        groupModules[i].x = 50+depFromIndex*50;
-                        groupModules[i].y = 200;
-                        groupModules[i].angle = -45;
-                        groupModules[i].opacity = 1;
-                        groupModules[i].isVisible = true;
-                        depFromIndex++;
-                    }
-                    else if (modulesDepsTo.indexOf(moduleName)!=-1){
-                        groupModules[i].x = 50+depToIndex*50;
-                        groupModules[i].y = 400;
-                        groupModules[i].angle = 45;
-                        groupModules[i].opacity = 1;
-                        groupModules[i].isVisible = true;
-                        depToIndex++;
-                    }
-                    else if (moduleName == selectedModule){
-                        groupModules[i].x = 200;
-                        groupModules[i].y = 300;
-                        groupModules[i].angle = 0;
-                        groupModules[i].opacity = 1;
-                        groupModules[i].isVisible = true;
-                    }
-                    else{
-                        groupModules[i].width = 0;
-                        groupModules[i].height = 0;
-                        groupModules[i].x = 0;
-                        groupModules[i].y = -20;
-                        groupModules[i].opacity = 0;
+                    var module = groupModules[i];
+                    processedModules[module.name] = module;
+                    processModule(module, processData);
+                }
+                processData.modulesToList = nodes.modules;
+                for (i = 0; i < nodes.modules.length; i++) {
+                    var module = nodes.modules[i];
+                    if (!processedModules[module.name]) {
+                        processModule(processData.modulesToList[i], processData);
                     }
                 }
                 break;
@@ -158,5 +146,46 @@
             default:
                 break;
         }
+    }
+
+    function processModule(module, processData){
+        var moduleName = module.name;
+        if (processData.modulesDepsFrom.indexOf(moduleName)!=-1){
+            module.x = 50+processData.depFromIndex*50;
+            module.y = 200;
+            module.angle = -45;
+            module.opacity = 0.3;
+            if (module.group == processData.selectedModuleObject.group){
+                module.opacity = 1;
+            }
+            module.isVisible = true;
+            processData.depFromIndex++;
+        }
+        else if (processData.modulesDepsTo.indexOf(moduleName)!=-1){
+            module.x = 50+processData.depToIndex*50;
+            module.y = 400;
+            module.angle = 45;
+            module.opacity = 0.3;
+            if (module.group == processData.selectedModuleObject.group){
+                module.opacity = 1;
+            }
+            module.isVisible = true;
+            processData.depToIndex++;
+        }
+        else if (moduleName == selectedModule){
+            module.x = 200;
+            module.y = 300;
+            module.angle = 0;
+            module.opacity = 1;
+            module.isVisible = true;
+        }
+        else{
+            module.width = 0;
+            module.height = 0;
+            module.x = 0;
+            module.y = -20;
+            module.opacity = 0;
+        }
+
     }
 

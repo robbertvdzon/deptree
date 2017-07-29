@@ -55,6 +55,10 @@
     var GROUPS_SMALL_WIDTH = 15;
     var GROUPS_SMALL_HEIGHT = 15;
     var CIRCLE_R = 10;
+    var BACKBUTTON_X = 10;
+    var BACKBUTTON_Y = 10;
+    var BACKBUTTON_WIDTH = 50;
+    var BACKBUTTON_HEIGHT = 25;
 
     defineArrow();
     resetModules();
@@ -70,6 +74,8 @@
     initialPaintDepModuleModule();
     initialPaintDepGroupModule();
     initialPaintDepModuleGroup();
+    initialPaintButtonsAndLabels();
+    hideBackbutton();
 
     function defineArrow() {
         svg.append("svg:defs").append("svg:marker")
@@ -104,6 +110,24 @@
             }
         }
 
+        if (isBackbuttonPressed(coords)){
+            switch (state) {
+                case ALL_GROUPS_DIAGRAM:
+                    break;
+                case SELECTED_GROUPS_DIAGRAM:
+                    state = ALL_GROUPS_DIAGRAM;
+                    break;
+                case GROUP_MODULES_DIAGRAM:
+                    state = SELECTED_GROUPS_DIAGRAM;
+                    break;
+                case SELECTED_MODULE_DIAGRAM:
+                    state = GROUP_MODULES_DIAGRAM;
+                    break;
+            }
+            repaintAll();
+            return;
+        }
+
         switch (state) {
             case ALL_GROUPS_DIAGRAM:
                 var clickedGroup = findSelectedGroup(coords);
@@ -127,9 +151,6 @@
                     else if (clickedGroup != null ){
                         selectedGroup = clickedGroup;
                     }
-                    else {
-                        state = ALL_GROUPS_DIAGRAM;
-                    }
                 }
                 break;
             case GROUP_MODULES_DIAGRAM:
@@ -138,17 +159,11 @@
                     state = SELECTED_MODULE_DIAGRAM;
                     selectedModule = clickedModule;
                 }
-                else{
-                    state = SELECTED_GROUPS_DIAGRAM;
-                }
                 break;
             case SELECTED_MODULE_DIAGRAM:
                 var clickedModule = findSelectedModule(coords);
                 if (clickedModule != null) {
                     selectedModule = clickedModule;
-                }
-                else{
-                    state = GROUP_MODULES_DIAGRAM;
                 }
                 break;
         }
@@ -169,6 +184,12 @@
         repaintDepModuleModule();
         repaintDepGroupModule();
         repaintDepModuleGroup();
+        if (state != ALL_GROUPS_DIAGRAM){
+            showBackbutton();
+        }
+        else{
+            hideBackbutton();
+        }
     }
 
     function findSelectedGroup(coords) {
@@ -184,6 +205,16 @@
         }
         return null;
     }
+
+    function isBackbuttonPressed(coords) {
+        let mouseX = coords[0];
+        let mouseY = coords[1];
+        return (mouseX>BACKBUTTON_X) &&
+            (mouseX<BACKBUTTON_X+BACKBUTTON_WIDTH) &&
+            (mouseY>BACKBUTTON_Y) &&
+            (mouseY<BACKBUTTON_Y+BACKBUTTON_HEIGHT);
+    }
+
 
     function findSelectedModule(coords) {
         for (i = 0; i < nodes.modules.length; i++) {
@@ -287,6 +318,42 @@
         repaintDepGroupModule();
         repaintDepModuleGroup();
 
+    }
+
+    function initialPaintButtonsAndLabels() {
+        svg
+            .append("rect")
+            .attr("class", "backButton")
+            .attr("x", BACKBUTTON_X)
+            .attr("y", BACKBUTTON_Y)
+            .attr("width", BACKBUTTON_WIDTH)
+            .attr("height", BACKBUTTON_HEIGHT)
+            .attr('stroke-width', 1)
+            .attr('stroke', "#000000")
+            .style("fill", "#EEEEEE");
+
+        svg
+            .append("text")
+            .attr("class", "backButton")
+            .text("back")
+            .attr("x", 20)
+            .attr("y", 28);
+    }
+
+    function showBackbutton() {
+        svg
+            .selectAll(".backButton")
+            .transition()
+            .duration(1000)
+            .attr('opacity', 1);
+    }
+
+    function hideBackbutton() {
+        svg
+            .selectAll(".backButton")
+            .transition()
+            .duration(1000)
+            .attr('opacity', 0);
     }
 
 
