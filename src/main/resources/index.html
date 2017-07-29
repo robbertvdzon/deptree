@@ -75,7 +75,9 @@
     initialPaintDepGroupModule();
     initialPaintDepModuleGroup();
     initialPaintButtonsAndLabels();
+    initialPaintManualText();
     hideBackbutton();
+    hideManualText();
 
     function defineArrow() {
         svg.append("svg:defs").append("svg:marker")
@@ -190,6 +192,14 @@
         else{
             hideBackbutton();
         }
+
+        if (state == SELECTED_GROUPS_DIAGRAM){
+            showManualText();
+        }
+        else{
+            hideManualText();
+        }
+
     }
 
     function findSelectedGroup(coords) {
@@ -355,6 +365,39 @@
             .duration(1000)
             .attr('opacity', 0);
     }
+
+
+    function initialPaintManualText() {
+        svg
+            .append("text")
+            .attr("class", "manualText")
+            .text("ctrl-click on group to expand to modules")
+            .attr("x", width-300)
+            .attr("y", 28);
+        svg
+            .append("text")
+            .attr("class", "manualText")
+            .text("shift-click on module to highlight")
+            .attr("x", width-300)
+            .attr("y", 48);
+    }
+
+    function showManualText() {
+        svg
+            .selectAll(".manualText")
+            .transition()
+            .duration(1000)
+            .attr('opacity', 1);
+    }
+
+    function hideManualText() {
+        svg
+            .selectAll(".manualText")
+            .transition()
+            .duration(1000)
+            .attr('opacity', 0);
+    }
+
 
 
 </script>
