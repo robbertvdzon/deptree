@@ -45,12 +45,23 @@ class DepServer {
     }
 
     private fun generateWebPages() {
-        val htmlFile = File("target", "dependencies.html");
         val jsFile = File("target", "jsondata.js");
-        val templateHtml = getTemplateHtmlFile()
         val jsonData = getJsonData()
-        htmlFile.writeText(templateHtml)
         jsFile.writeText(jsonData)
+        copyWebfile("dependencies.html","index.html")
+        copyWebfile("groups.js","groups.js")
+        copyWebfile("modules.js","modules.js")
+        copyWebfile("depgroupgroup.js","depgroupgroup.js")
+        copyWebfile("depbase.js","depbase.js")
+        copyWebfile("depgroupmodule.js","depgroupmodule.js")
+        copyWebfile("depmodulegroup.js","depmodulegroup.js")
+        copyWebfile("depmodulemodule.js","depmodulemodule.js")
+    }
+
+    private fun copyWebfile(filename:String, sourceFilename:String) {
+        val fileData = File("target", filename);
+        val templateData = getTemplateFile(sourceFilename)
+        fileData .writeText(templateData)
     }
 
     private fun getJsonData(): String {
@@ -58,9 +69,9 @@ class DepServer {
         return "var nodes = $json"
     }
 
-    private fun getTemplateHtmlFile(): String {
+    private fun getTemplateFile(filename:String): String {
         val classLoader = javaClass.classLoader
-        val t = classLoader.getResourceAsStream("index.html")
+        val t = classLoader.getResourceAsStream(filename)
         val s = Scanner(t).useDelimiter("\\A")
         val result = if (s.hasNext()) s.next() else ""
         return result;
