@@ -124,7 +124,7 @@
                     var groupName = nodes.groups[i].name;
                     if (groupDepsFrom.indexOf(groupName)!=-1){
                         group.x = nextX;
-                        group.y = 100;
+                        group.y = DEPS_FROM_Y;
                         group.angle = -45;
                         group.width = GROUPS_SMALL_WIDTH;
                         group.height = GROUPS_SMALL_HEIGHT;
@@ -138,7 +138,7 @@
                     }
                     else if (groupDepsTo.indexOf(groupName)!=-1){
                         nodes.groups[i].x = nextToX;
-                        nodes.groups[i].y = 500;
+                        nodes.groups[i].y = DEPS_TO_Y;
                         nodes.groups[i].angle = 45;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
@@ -152,7 +152,7 @@
                     }
                     else if (groupName == selectedGroup){
                         nodes.groups[i].x = 200;
-                        nodes.groups[i].y = 300;
+                        nodes.groups[i].y = SELECTED_DEP_Y;
                         nodes.groups[i].angle = 0;
                         nodes.groups[i].width = GROUPS_SMALL_WIDTH;
                         nodes.groups[i].height = GROUPS_SMALL_HEIGHT;
@@ -174,24 +174,6 @@
                 }
                 break;
             case GROUP_MODULES_DIAGRAM:
-            for (i = 0; i < nodes.groups.length; i++) {
-                var groupName = nodes.groups[i].name;
-                if (groupName == selectedGroup){
-                    nodes.groups[i].x = 2;
-                    nodes.groups[i].y = 2;
-                    nodes.groups[i].width = width-4;
-                    nodes.groups[i].height = height-4;
-                    nodes.groups[i].opacity = 1;
-                }
-                else{
-                    nodes.groups[i].width = 0;
-                    nodes.groups[i].height = 0;
-                    nodes.groups[i].x = 0;
-                    nodes.groups[i].y = -20;
-                    nodes.groups[i].opacity = 0;
-                }
-            }
-            break;
             case SELECTED_MODULE_DIAGRAM:
             default:
                 for (i = 0; i < nodes.groups.length; i++) {

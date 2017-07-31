@@ -68,6 +68,13 @@
     var offset = 400;
     var GROUPS_SMALL_WIDTH = 15;
     var GROUPS_SMALL_HEIGHT = 15;
+
+    var DEPS_FROM_Y = 200;
+    var DEPS_TO_Y = 500;
+    var SELECTED_DEP_Y = 350;
+
+
+
     var CIRCLE_R = 10;
     var BACKBUTTON_X = 10;
     var BACKBUTTON_Y = 10;
@@ -398,14 +405,14 @@
             .append("text")
             .attr("class", "manualText")
             .text("ctrl-click on group to expand to modules")
-            .attr("x", width-300)
-            .attr("y", 28);
+            .attr("x", 10)
+            .attr("y", 50);
         svg
             .append("text")
             .attr("class", "manualText")
             .text("shift-click on module to highlight")
-            .attr("x", width-300)
-            .attr("y", 48);
+            .attr("x", 10)
+            .attr("y", 70);
     }
 
     function showManualText() {

@@ -152,7 +152,7 @@
         var moduleName = module.name;
         if (processData.modulesDepsFrom.indexOf(moduleName)!=-1){
             module.x = 50+processData.depFromIndex*50;
-            module.y = 200;
+            module.y = DEPS_FROM_Y;
             module.angle = -45;
             module.opacity = 0.3;
             if (module.group == processData.selectedModuleObject.group){
@@ -163,7 +163,7 @@
         }
         else if (processData.modulesDepsTo.indexOf(moduleName)!=-1){
             module.x = 50+processData.depToIndex*50;
-            module.y = 400;
+            module.y = DEPS_TO_Y;
             module.angle = 45;
             module.opacity = 0.3;
             if (module.group == processData.selectedModuleObject.group){
@@ -174,7 +174,7 @@
         }
         else if (moduleName == selectedModule){
             module.x = 200;
-            module.y = 300;
+            module.y = SELECTED_DEP_Y;
             module.angle = 0;
             module.opacity = 1;
             module.isVisible = true;
