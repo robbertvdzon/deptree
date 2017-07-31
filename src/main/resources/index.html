@@ -59,6 +59,7 @@
     var BACKBUTTON_Y = 10;
     var BACKBUTTON_WIDTH = 50;
     var BACKBUTTON_HEIGHT = 25;
+    var stateHistory = [];
 
     defineArrow();
     resetModules();
@@ -78,6 +79,24 @@
     initialPaintManualText();
     hideBackbutton();
     hideManualText();
+
+    function pushState(){
+        var currentState = {};
+        currentState.state = state;
+        currentState.selectedGroup = selectedGroup;
+        currentState.selectedModule = selectedModule;
+        stateHistory.push(currentState);
+    }
+
+
+    function popState(){
+        if (stateHistory.length>0) {
+            var lastState = stateHistory.pop();
+            state = lastState.state;
+            selectedGroup = lastState.selectedGroup;
+            selectedModule = lastState.selectedModule;
+        }
+    }
 
     function defineArrow() {
         svg.append("svg:defs").append("svg:marker")
@@ -113,19 +132,7 @@
         }
 
         if (isBackbuttonPressed(coords)){
-            switch (state) {
-                case ALL_GROUPS_DIAGRAM:
-                    break;
-                case SELECTED_GROUPS_DIAGRAM:
-                    state = ALL_GROUPS_DIAGRAM;
-                    break;
-                case GROUP_MODULES_DIAGRAM:
-                    state = SELECTED_GROUPS_DIAGRAM;
-                    break;
-                case SELECTED_MODULE_DIAGRAM:
-                    state = GROUP_MODULES_DIAGRAM;
-                    break;
-            }
+            popState();
             repaintAll();
             return;
         }
@@ -134,6 +141,7 @@
             case ALL_GROUPS_DIAGRAM:
                 var clickedGroup = findSelectedGroup(coords);
                 if (clickedGroup != null) {
+                    pushState();
                     state = SELECTED_GROUPS_DIAGRAM;
                     selectedGroup = clickedGroup;
                 }
@@ -148,9 +156,11 @@
                 }
                 else{
                     if (clickedGroup == selectedGroup ) {
+                        pushState();
                         state = GROUP_MODULES_DIAGRAM;
                     }
                     else if (clickedGroup != null ){
+                        pushState();
                         selectedGroup = clickedGroup;
                     }
                 }
@@ -158,6 +168,7 @@
             case GROUP_MODULES_DIAGRAM:
                 var clickedModule = findSelectedModule(coords);
                 if (clickedModule != null) {
+                    pushState();
                     state = SELECTED_MODULE_DIAGRAM;
                     selectedModule = clickedModule;
                 }
@@ -165,6 +176,7 @@
             case SELECTED_MODULE_DIAGRAM:
                 var clickedModule = findSelectedModule(coords);
                 if (clickedModule != null) {
+                    pushState();
                     selectedModule = clickedModule;
                 }
                 break;
@@ -186,7 +198,7 @@
         repaintDepModuleModule();
         repaintDepGroupModule();
         repaintDepModuleGroup();
-        if (state != ALL_GROUPS_DIAGRAM){
+        if (stateHistory.length>0){
             showBackbutton();
         }
         else{
