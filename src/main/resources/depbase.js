@@ -35,9 +35,9 @@
         return point;
     }
 
-    function centerOfModule(module){
+    function centerOfArtifact(artifact){
         var point = {};
-        point.x = module.x;
-        point.y = module.y;
+        point.x = artifact.x;
+        point.y = artifact.y;
         return point;
     }

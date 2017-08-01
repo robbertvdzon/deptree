@@ -45,8 +45,8 @@
                     }
                 }
                 break;
-            case GROUP_MODULES_DIAGRAM:
-            case SELECTED_MODULE_DIAGRAM:
+            case GROUP_ARTIFACTS_DIAGRAM:
+            case SELECTED_ARTIFACT_DIAGRAM:
                 break;
         }
     }

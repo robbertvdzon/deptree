@@ -1,5 +1,5 @@
 package com.vdzon.maven.plugin.deptree.jsonmodel
 
-class Module (val name:String = ""){
+class Artifact(val name:String = ""){
 
 }

@@ -1,14 +1,14 @@
 package com.vdzon.maven.plugin.deptree.dto;
 
-import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleDto
+import com.vdzon.maven.plugin.deptree.jsonmodel.ArtifactDto
 import com.vdzon.maven.plugin.deptree.jsonmodel.GroupDto
 import java.util.ArrayList
 
 class ModelDto (
-        val modules:List<ModuleDto> = ArrayList(),
+        val artifacts:List<ArtifactDto> = ArrayList(),
         val groups:List<GroupDto> = ArrayList(),
         val depGroupGroups:List<DepGroupGroupDto> = ArrayList(),
-        val depGroupModules:List<DepGroupModuleDto> = ArrayList(),
-        val depModuleGroups:List<DepModuleGroupDto> = ArrayList(),
-        val depModuleModules:List<DepModuleModuleDto> = ArrayList()
+        val depGroupArtifacts:List<DepGroupArtifactDto> = ArrayList(),
+        val depArtifactGroups:List<DepArtifactGroupDto> = ArrayList(),
+        val depArtifactArtifacts:List<DepArtifactArtifactDto> = ArrayList()
 )

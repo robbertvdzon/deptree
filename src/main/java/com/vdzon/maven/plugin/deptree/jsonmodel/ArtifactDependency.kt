@@ -2,7 +2,7 @@ package com.vdzon.maven.plugin.deptree.jsonmodel
 
 import java.util.ArrayList
 
-class ModuleDependency {
+class ArtifactDependency {
     var groupId: String = ""
     var artifactId: String = ""
     var version: String = ""

@@ -1,9 +1,9 @@
 package com.vdzon.maven.plugin.deptree.jsonmodel
 
 
-class ModuleGroups(
+class ArtifactGroups(
         var application: String = "",
-        var moduleGroups: List<ModuleGroup> = listOf<ModuleGroup>()
+        var artifactGroups: List<ArtifactGroup> = listOf<ArtifactGroup>()
 ) {
 }
 

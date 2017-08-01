@@ -1,8 +1,8 @@
 package com.vdzon.maven.plugin.deptree.jsonmodel
 
-class ModuleLayer(
+class ArtifactLayer(
         var name: String = "",
-        var modules : List<Module>  = listOf<Module>()
+        var artifacts: List<Artifact>  = listOf<Artifact>()
 ){
 }
 

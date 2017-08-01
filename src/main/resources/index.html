@@ -42,12 +42,12 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="jsondata.js"></script>
 <script src="groups.js"></script>
-<script src="modules.js"></script>
+<script src="artifacts.js"></script>
 <script src="depbase.js"></script>
 <script src="depgroupgroup.js"></script>
-<script src="depgroupmodule.js"></script>
-<script src="depmodulegroup.js"></script>
-<script src="depmodulemodule.js"></script>
+<script src="depgroupartifact.js"></script>
+<script src="departifactgroup.js"></script>
+<script src="departifactartifact.js"></script>
 <script>
 
     var svg = d3.select("svg"),
@@ -56,15 +56,15 @@
 
     var ALL_GROUPS_DIAGRAM = 0;
     var SELECTED_GROUPS_DIAGRAM = 1;
-    var GROUP_MODULES_DIAGRAM = 2;
-    var SELECTED_MODULE_DIAGRAM = 3;
+    var GROUP_ARTIFACTS_DIAGRAM = 2;
+    var SELECTED_ARTIFACT_DIAGRAM = 3;
 
     var state = ALL_GROUPS_DIAGRAM;
     var selectedGroup = "";
-    var selectedModule = "";
+    var selectedArtifact = "";
     var totalGroups = nodes.groups.length;
     var RADIUS_GROUPS = 250;
-    var RADIUS_GROUP_MODULE = 150;
+    var RADIUS_GROUP_ARTIFACT = 150;
     var offset = 400;
     var GROUPS_SMALL_WIDTH = 25;
     var GROUPS_SMALL_HEIGHT = 25;
@@ -83,19 +83,19 @@
     var stateHistory = [];
 
     defineArrow();
-    resetModules();
+    resetArtifacts();
     positionGroups();
-    positionModules();
+    positionArtifacts();
     positionDepGroupGroups();
-    positionDepModuleModule();
-    positionDepGroupModule();
-    positionDepModuleGroup();
+    positionDepArtifactArtifact();
+    positionDepGroupArtifact();
+    positionDepArtifactGroup();
     initialPaintGroups();
-    initialPaintModules();
+    initialPaintArtifacts();
     initialPaintDepGroupGroup();
-    initialPaintDepModuleModule();
-    initialPaintDepGroupModule();
-    initialPaintDepModuleGroup();
+    initialPaintDepArtifactArtifact();
+    initialPaintDepGroupArtifact();
+    initialPaintDepArtifactGroup();
     initialPaintButtonsAndLabels();
     initialPaintManualText();
     hideBackbutton();
@@ -105,7 +105,7 @@
         var currentState = {};
         currentState.state = state;
         currentState.selectedGroup = selectedGroup;
-        currentState.selectedModule = selectedModule;
+        currentState.selectedArtifact = selectedArtifact;
         stateHistory.push(currentState);
     }
 
@@ -115,7 +115,7 @@
             var lastState = stateHistory.pop();
             state = lastState.state;
             selectedGroup = lastState.selectedGroup;
-            selectedModule = lastState.selectedModule;
+            selectedArtifact = lastState.selectedArtifact;
         }
     }
 
@@ -133,21 +133,21 @@
     }
 
 
-    var lastHighlightedModule = "";
+    var lastHighlightedArtifact = "";
 
     svg.on("click", function () {
         var coords = d3.mouse(this);
 
         if (d3.event.shiftKey) {
-            var clickedModule = findSelectedModule(coords);
-            if (clickedModule != null) {
-                if (lastHighlightedModule != clickedModule){
-                    lastHighlightedModule = clickedModule;
+            var clickedArtifact = findSelectedArtifact(coords);
+            if (clickedArtifact != null) {
+                if (lastHighlightedArtifact != clickedArtifact){
+                    lastHighlightedArtifact = clickedArtifact;
                 }
                 else{
-                    lastHighlightedModule = "";
+                    lastHighlightedArtifact = "";
                 }
-                highlightModule(lastHighlightedModule);
+                highlightArtifact(lastHighlightedArtifact);
                 return;
             }
         }
@@ -178,7 +178,7 @@
                 else{
                     if (clickedGroup == selectedGroup ) {
                         pushState();
-                        state = GROUP_MODULES_DIAGRAM;
+                        state = GROUP_ARTIFACTS_DIAGRAM;
                     }
                     else if (clickedGroup != null ){
                         pushState();
@@ -186,19 +186,19 @@
                     }
                 }
                 break;
-            case GROUP_MODULES_DIAGRAM:
-                var clickedModule = findSelectedModule(coords);
-                if (clickedModule != null) {
+            case GROUP_ARTIFACTS_DIAGRAM:
+                var clickedArtifact = findSelectedArtifact(coords);
+                if (clickedArtifact != null) {
                     pushState();
-                    state = SELECTED_MODULE_DIAGRAM;
-                    selectedModule = clickedModule;
+                    state = SELECTED_ARTIFACT_DIAGRAM;
+                    selectedArtifact = clickedArtifact;
                 }
                 break;
-            case SELECTED_MODULE_DIAGRAM:
-                var clickedModule = findSelectedModule(coords);
-                if (clickedModule != null) {
+            case SELECTED_ARTIFACT_DIAGRAM:
+                var clickedArtifact = findSelectedArtifact(coords);
+                if (clickedArtifact != null) {
                     pushState();
-                    selectedModule = clickedModule;
+                    selectedArtifact = clickedArtifact;
                 }
                 break;
         }
@@ -206,19 +206,19 @@
     });
 
     function repaintAll(){
-        resetModules();
+        resetArtifacts();
         positionGroups();
-        positionModules();
+        positionArtifacts();
         positionDepGroupGroups();
-        positionDepModuleModule();
-        positionDepGroupModule();
-        positionDepModuleGroup();
+        positionDepArtifactArtifact();
+        positionDepGroupArtifact();
+        positionDepArtifactGroup();
         repaintGroups();
-        repaintModules();
+        repaintArtifacts();
         repaintDepGroupGroup();
-        repaintDepModuleModule();
-        repaintDepGroupModule();
-        repaintDepModuleGroup();
+        repaintDepArtifactArtifact();
+        repaintDepGroupArtifact();
+        repaintDepArtifactGroup();
         if (stateHistory.length>0){
             showBackbutton();
         }
@@ -259,13 +259,13 @@
     }
 
 
-    function findSelectedModule(coords) {
-        for (i = 0; i < nodes.modules.length; i++) {
-            var xdiff = coords[0] - nodes.modules[i].x;
-            var ydiff = coords[1] - nodes.modules[i].y;
+    function findSelectedArtifact(coords) {
+        for (i = 0; i < nodes.artifacts.length; i++) {
+            var xdiff = coords[0] - nodes.artifacts[i].x;
+            var ydiff = coords[1] - nodes.artifacts[i].y;
             var distance = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
             if (distance < CIRCLE_R) {
-                return nodes.modules[i].name;
+                return nodes.artifacts[i].name;
             }
         }
         return null;
@@ -287,24 +287,24 @@
         return allGroups;
     }
 
-    function createModuleArray(){
-        var allModules = {};
-        for (i = 0; i < nodes.modules.length; i++) {
-            var module = nodes.modules[i];
-            allModules[module.name] = module;
+    function createArtifactArray(){
+        var allArtifacts = {};
+        for (i = 0; i < nodes.artifacts.length; i++) {
+            var artifact = nodes.artifacts[i];
+            allArtifacts[artifact.name] = artifact;
         }
-        return allModules;
+        return allArtifacts;
     }
 
-    function getEdgeOfModule(module, otherEdge){
-        var xOffset = module.x - otherEdge.x;
-        var yOffset = module.y - otherEdge.y;
+    function getEdgeOfArtifact(artifact, otherEdge){
+        var xOffset = artifact.x - otherEdge.x;
+        var yOffset = artifact.y - otherEdge.y;
         var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
         if (leng==0) return;
         var percOff = CIRCLE_R / leng;
         var point = {};
-        point.x = module.x - xOffset * percOff;
-        point.y = module.y - yOffset * percOff;
+        point.x = artifact.x - xOffset * percOff;
+        point.y = artifact.y - yOffset * percOff;
         return point;
     }
 
@@ -322,10 +322,10 @@
         return point;
     }
 
-    function highlightModule(moduleName){
-        for (i = 0; i < nodes.depGroupModules.length; i++) {
-            var dep = nodes.depGroupModules[i];
-            if (dep.to != moduleName && moduleName!=""){
+    function highlightArtifact(artifactName){
+        for (i = 0; i < nodes.depGroupArtifacts.length; i++) {
+            var dep = nodes.depGroupArtifacts[i];
+            if (dep.to != artifactName && artifactName!=""){
                 dep.highlight = false;
                 dep.dimmed = true;
             }
@@ -334,9 +334,9 @@
                 dep.dimmed = false;
             }
         }
-        for (i = 0; i < nodes.depModuleGroups.length; i++) {
-            var dep = nodes.depModuleGroups[i];
-            if (dep.from != moduleName && moduleName!=""){
+        for (i = 0; i < nodes.depArtifactGroups.length; i++) {
+            var dep = nodes.depArtifactGroups[i];
+            if (dep.from != artifactName && artifactName!=""){
                 dep.highlight = false;
                 dep.dimmed = true;
             }
@@ -345,9 +345,9 @@
                 dep.dimmed = false;
             }
         }
-        for (i = 0; i < nodes.depModuleModules.length; i++) {
-            var dep = nodes.depModuleModules[i];
-            if (dep.from != moduleName && dep.to != moduleName  && moduleName!=""){
+        for (i = 0; i < nodes.depArtifactArtifacts.length; i++) {
+            var dep = nodes.depArtifactArtifacts[i];
+            if (dep.from != artifactName && dep.to != artifactName  && artifactName!=""){
                 dep.highlight = false;
                 dep.dimmed = true;
             }
@@ -357,9 +357,9 @@
             }
         }
 
-        repaintDepModuleModule();
-        repaintDepGroupModule();
-        repaintDepModuleGroup();
+        repaintDepArtifactArtifact();
+        repaintDepGroupArtifact();
+        repaintDepArtifactGroup();
 
     }
 
@@ -404,13 +404,13 @@
         svg
             .append("text")
             .attr("class", "manualText")
-            .text("ctrl-click on group to expand to modules")
+            .text("ctrl-click on group to expand to artifacts")
             .attr("x", 10)
             .attr("y", 50);
         svg
             .append("text")
             .attr("class", "manualText")
-            .text("shift-click on module to highlight")
+            .text("shift-click on artifact to highlight")
             .attr("x", 10)
             .attr("y", 70);
     }

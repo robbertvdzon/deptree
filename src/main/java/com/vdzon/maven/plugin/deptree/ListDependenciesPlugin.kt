@@ -46,45 +46,45 @@ class ListDependenciesPlugin : AbstractMojo() {
         val allDeps = ArrayList<String>()
         processParentAndImportsRecursive(project!!, allDeps)
         writeDeps(allDeps)
-        updateModuleGroups()
+        updateArtifactGroups()
     }
 
-    private fun updateModuleGroups() {
-        val moduleGroupService = ModuleGroupService()
+    private fun updateArtifactGroups() {
+        val artifactGroupService = ArtifactGroupService()
         val yamlFilename = "groups.yaml"
-        val moduleGroups: ModuleGroups = moduleGroupService.getExistsingOrNewModuleGroups(yamlFilename, moduleGroupService)
-        val moduleName = project!!.groupId + ":" + project.artifactId
-        val moduleExists = moduleGroups.moduleGroups.any { it.layers.any { it.modules.any { it.name == moduleName } } }
-        val modifiedGroupsObject = if (!moduleExists) addToUnknownGroup(moduleGroups, moduleName) else moduleGroups
-        writeModuleGroups(yamlFilename, moduleGroupService, modifiedGroupsObject)
+        val artifactGroups: ArtifactGroups = artifactGroupService.getExistsingOrNewArtifactGroups(yamlFilename, artifactGroupService)
+        val artifactName = project!!.groupId + ":" + project.artifactId
+        val artifactExists = artifactGroups.artifactGroups.any { it.layers.any { it.artifacts.any { it.name == artifactName } } }
+        val modifiedGroupsObject = if (!artifactExists) addToUnknownGroup(artifactGroups, artifactName) else artifactGroups
+        writeArtifactGroups(yamlFilename, artifactGroupService, modifiedGroupsObject)
     }
 
-    private fun addToUnknownGroup(moduleGroups: ModuleGroups, moduleName: String): ModuleGroups {
-        val unknownGroupFound = moduleGroups.moduleGroups.find { it.modulegroup == "unknown" }
-        val unknownGroup = if (unknownGroupFound != null) unknownGroupFound else ModuleGroup("unknown")
+    private fun addToUnknownGroup(artifactGroups: ArtifactGroups, artifactName: String): ArtifactGroups {
+        val unknownGroupFound = artifactGroups.artifactGroups.find { it.artifactgroup == "unknown" }
+        val unknownGroup = if (unknownGroupFound != null) unknownGroupFound else ArtifactGroup("unknown")
 
         val unknownLayersFound = unknownGroup.layers.find { it.name == "unknown" }
-        val unknownLayer = if (unknownLayersFound != null) unknownLayersFound else ModuleLayer("unknown")
+        val unknownLayer = if (unknownLayersFound != null) unknownLayersFound else ArtifactLayer("unknown")
 
-        val modifiedModules = unknownLayer.modules.toMutableList();
-        modifiedModules.filter { it.name == moduleName }.forEach { modifiedModules.remove(it) }
-        modifiedModules.add(Module(moduleName))
-        val modifiedLayer = ModuleLayer("unknown", modifiedModules);
+        val modifiedArtifacts = unknownLayer.artifacts.toMutableList();
+        modifiedArtifacts.filter { it.name == artifactName }.forEach { modifiedArtifacts.remove(it) }
+        modifiedArtifacts.add(Artifact(artifactName))
+        val modifiedLayer = ArtifactLayer("unknown", modifiedArtifacts);
 
         val modifiedLayers = unknownGroup.layers.toMutableList();
         modifiedLayers.filter { it.name == "unknown" }.forEach { modifiedLayers.remove(it) }
         modifiedLayers.add(modifiedLayer)
 
-        val modifiedGroups = moduleGroups.moduleGroups.toMutableList();
-        modifiedGroups.filter { it.modulegroup == "unknown" }.forEach { modifiedGroups.remove(it) }
-        modifiedGroups.add(ModuleGroup("unknown", modifiedLayers))
+        val modifiedGroups = artifactGroups.artifactGroups.toMutableList();
+        modifiedGroups.filter { it.artifactgroup == "unknown" }.forEach { modifiedGroups.remove(it) }
+        modifiedGroups.add(ArtifactGroup("unknown", modifiedLayers))
 
-        val modifiedGroupsObject = ModuleGroups(moduleGroups.application, modifiedGroups);
+        val modifiedGroupsObject = ArtifactGroups(artifactGroups.application, modifiedGroups);
         return modifiedGroupsObject
     }
 
-    private fun writeModuleGroups(yamlFilename: String, moduleGroupService: ModuleGroupService, moduleGroups : ModuleGroups) {
-        File(yamlFilename).writeText(moduleGroupService.serializeModuleGroups(moduleGroups), charset = Charsets.UTF_8)
+    private fun writeArtifactGroups(yamlFilename: String, artifactGroupService: ArtifactGroupService, artifactGroups: ArtifactGroups) {
+        File(yamlFilename).writeText(artifactGroupService.serializeArtifactGroups(artifactGroups), charset = Charsets.UTF_8)
     }
 
 
@@ -96,16 +96,16 @@ class ListDependenciesPlugin : AbstractMojo() {
         for (dep in allDeps) {
             depList.add(dep)
         }
-        var moduleDependency = ModuleDependency()
-        moduleDependency.groupId=project.groupId
-        moduleDependency.artifactId=project.artifactId
-        moduleDependency.version=project.version
-        moduleDependency.absolutePath=project.basedir.absolutePath
-        moduleDependency.packaging=project.packaging
-        moduleDependency.deps=depList
+        var artifactDependency = ArtifactDependency()
+        artifactDependency.groupId=project.groupId
+        artifactDependency.artifactId=project.artifactId
+        artifactDependency.version=project.version
+        artifactDependency.absolutePath=project.basedir.absolutePath
+        artifactDependency.packaging=project.packaging
+        artifactDependency.deps=depList
 
         val mapper = ObjectMapper(YAMLFactory())
-        val yaml = mapper.writeValueAsString(moduleDependency)
+        val yaml = mapper.writeValueAsString(artifactDependency)
         File(filename).writeText(yaml, charset = Charsets.UTF_8)
     }
 
@@ -138,7 +138,7 @@ class ListDependenciesPlugin : AbstractMojo() {
                         mavenProject = getMavenProject(currentProject, dependency.groupId, dependency.artifactId,
                                 dependency.version)
                     } catch (e: ProjectBuildingException) {
-                        // try again with fixed project.version, this fails on the gwt module
+                        // try again with fixed project.version, this fails on the gwt artifact
                         var version = dependency.version
                         if (version == "\${project.version}") {
                             version = currentProject.version
