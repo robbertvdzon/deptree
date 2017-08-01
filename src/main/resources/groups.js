@@ -5,6 +5,8 @@
             .enter()
             .append("rect")
             .attr("class", "group")
+            .attr("rx", 6)
+            .attr("ry", 6)
             .attr("x", function(d) { return d.x })
             .attr("y", function(d) { return d.y })
             .attr("width", function(d) { return d.width })
