@@ -4,8 +4,8 @@ package com.vdzon.maven.plugin.deptree.resource
 import com.vdzon.maven.plugin.deptree.DepServer
 import com.vdzon.maven.plugin.deptree.dto.*
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifact
-import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactGroups
-import com.vdzon.maven.plugin.deptree.jsonmodel.GroupDto
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactModules
+import com.vdzon.maven.plugin.deptree.jsonmodel.ModuleDto
 import com.vdzon.maven.plugin.deptree.jsonmodel.ArtifactDto
 
 class Builder {
@@ -13,10 +13,10 @@ class Builder {
     companion object Helper {
 
         fun buildModel(): ModelDto {
-            val data: EnrichedArtifactGroups? = DepServer.data
+            val data: EnrichedArtifactModules? = DepServer.data
             if (data != null) {
                 val artifacts: List<EnrichedArtifact> = data
-                        .artifactGroups
+                        .artifactModules
                         .flatMap {
                             it.layers
                         }
@@ -24,14 +24,14 @@ class Builder {
                             it.artifacts
                         }
 
-                val groupsDto = data
-                        .artifactGroups
+                val modulesDto = data
+                        .artifactModules
                         .map {
-                            GroupDto(it.artifactgroup)
+                            ModuleDto(it.artifactmodule)
                         }
 
                 val artifactsDto = artifacts.map {
-                    ArtifactDto(name = it.name, group = it.artifactLayer!!.artifactGroup!!.artifactgroup)
+                    ArtifactDto(name = it.name, module = it.artifactLayer!!.artifactModule!!.artifactmodule)
                 }
 
                 val depArtifactArtifact = artifacts
@@ -46,49 +46,49 @@ class Builder {
                         .distinctBy { dep -> dep.from + dep.to }
                         .filter { dep -> dep.from != dep.to }
 
-                val depArtifactGroup = artifacts
+                val depArtifactModule = artifacts
                         .flatMap {
                             artifactFrom ->
                             artifactFrom.depsTo
                                     .map {
                                         artifactTo ->
-                                        DepArtifactGroupDto(from = artifactFrom.name, to = artifactTo.artifactLayer!!.artifactGroup!!.artifactgroup)
+                                        DepArtifactModuleDto(from = artifactFrom.name, to = artifactTo.artifactLayer!!.artifactModule!!.artifactmodule)
                                     }
                         }
                         .distinctBy { dep -> dep.from + dep.to }
                         .filter { dep -> dep.from != dep.to }
 
-                val depGroupArtifact = artifacts
+                val depModuleArtifact = artifacts
                         .flatMap {
                             artifactFrom ->
                             artifactFrom.depsTo
                                     .map {
                                         artifactTo ->
-                                        DepGroupArtifactDto(from = artifactFrom.artifactLayer!!.artifactGroup!!.artifactgroup, to = artifactTo.name)
+                                        DepModuleArtifactDto(from = artifactFrom.artifactLayer!!.artifactModule!!.artifactmodule, to = artifactTo.name)
                                     }
                         }
                         .distinctBy { dep -> dep.from + dep.to }
                         .filter { dep -> dep.from != dep.to }
 
-                val depGroupGroup = artifacts
+                val depModuleModule = artifacts
                         .flatMap {
                             artifactFrom ->
                             artifactFrom.depsTo
                                     .map {
                                         artifactTo ->
-                                        DepGroupGroupDto(from = artifactFrom.artifactLayer!!.artifactGroup!!.artifactgroup, to = artifactTo.artifactLayer!!.artifactGroup!!.artifactgroup)
+                                        DepModuleModuleDto(from = artifactFrom.artifactLayer!!.artifactModule!!.artifactmodule, to = artifactTo.artifactLayer!!.artifactModule!!.artifactmodule)
                                     }
                         }
                         .distinctBy { dep -> dep.from + dep.to }
                         .filter { dep -> dep.from != dep.to }
 
 
-                return ModelDto(groups = groupsDto
+                return ModelDto(modules = modulesDto
                         , artifacts = artifactsDto
                         , depArtifactArtifacts = depArtifactArtifact
-                        , depArtifactGroups = depArtifactGroup
-                        , depGroupArtifacts = depGroupArtifact
-                        , depGroupGroups = depGroupGroup
+                        , depArtifactModules = depArtifactModule
+                        , depModuleArtifacts = depModuleArtifact
+                        , depModuleModules = depModuleModule
                 )
             }
             return ModelDto();

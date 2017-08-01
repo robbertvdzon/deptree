@@ -18,9 +18,9 @@
         }
         var artifactCache = createArtifactArray();
         switch (state) {
-            case ALL_GROUPS_DIAGRAM:
+            case ALL_MODULES_DIAGRAM:
                 break;
-            case SELECTED_GROUPS_DIAGRAM:
+            case SELECTED_MODULES_DIAGRAM:
                 for (i = 0; i < nodes.depArtifactArtifacts.length; i++) {
                     var dep = nodes.depArtifactArtifacts[i];
                     var artifactFrom = artifactCache[dep.from];
@@ -28,14 +28,14 @@
                     if (
                         artifactFrom.isVisible
                         && artifactTo.isVisible
-                        && ((artifactTo.group == selectedGroup) || (artifactFrom.group == selectedGroup))
-                        && (artifactTo.group != artifactFrom.group)
+                        && ((artifactTo.module == selectedModule) || (artifactFrom.module == selectedModule))
+                        && (artifactTo.module != artifactFrom.module)
                     ) {
                         setDepArtifactArtifactCoordinates(artifactFrom, artifactTo, dep);
                     }
                 }
                 break;
-            case GROUP_ARTIFACTS_DIAGRAM:
+            case MODULE_ARTIFACTS_DIAGRAM:
                 for (i = 0; i < nodes.depArtifactArtifacts.length; i++) {
                     var dep = nodes.depArtifactArtifacts[i];
                     var artifactFrom = artifactCache[dep.from];
@@ -59,7 +59,7 @@
                          && (artifactFrom.name == selectedArtifact || artifactTo.name == selectedArtifact)
                     ) {
                         setDepArtifactArtifactCoordinates(artifactFrom, artifactTo, dep);
-                        if (artifactFrom.group != artifactTo.group){
+                        if (artifactFrom.module != artifactTo.module){
                             dep.opacity = 0.3;
                         }
                     }

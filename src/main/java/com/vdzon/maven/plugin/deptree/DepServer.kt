@@ -4,11 +4,11 @@ package com.vdzon.maven.plugin.deptree
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifact
-import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactGroup
-import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactGroups
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactModule
+import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactModules
 import com.vdzon.maven.plugin.deptree.enrichedmodel.EnrichedArtifactLayer
 import com.vdzon.maven.plugin.deptree.jsonmodel.ArtifactDependency
-import com.vdzon.maven.plugin.deptree.jsonmodel.ArtifactGroups
+import com.vdzon.maven.plugin.deptree.jsonmodel.ArtifactModules
 import com.vdzon.maven.plugin.deptree.resource.Builder
 import java.io.File
 import java.io.FileFilter
@@ -29,17 +29,17 @@ class Log {
 class DepServer {
     companion object {
         var log = Log()
-        var data: EnrichedArtifactGroups? = null;
+        var data: EnrichedArtifactModules? = null;
     }
 
     fun start() {
-        log.info("load groups.yaml")
+        log.info("load modules.yaml")
 
-        val artifactGroupService = ArtifactGroupService()
-        val yamlFilename = "groups.yaml"
-        val artifactGroups: ArtifactGroups = artifactGroupService.getExistsingOrNewArtifactGroups(yamlFilename, artifactGroupService)
+        val artifactModuleService = ArtifactModuleService()
+        val yamlFilename = "modules.yaml"
+        val artifactModules: ArtifactModules = artifactModuleService.getExistsingOrNewArtifactModules(yamlFilename, artifactModuleService)
 
-        DepServer.data = enrichModel(artifactGroups)
+        DepServer.data = enrichModel(artifactModules)
 
         generateWebPages()
     }
@@ -49,12 +49,12 @@ class DepServer {
         val jsonData = getJsonData()
         jsFile.writeText(jsonData)
         copyWebfile("dependencies.html","index.html")
-        copyWebfile("groups.js","groups.js")
+        copyWebfile("modules.js","modules.js")
         copyWebfile("artifacts.js","artifacts.js")
-        copyWebfile("depgroupgroup.js","depgroupgroup.js")
+        copyWebfile("depmodulemodule.js","depmodulemodule.js")
         copyWebfile("depbase.js","depbase.js")
-        copyWebfile("depgroupartifact.js","depgroupartifact.js")
-        copyWebfile("departifactgroup.js","departifactgroup.js")
+        copyWebfile("depmoduleartifact.js","depmoduleartifact.js")
+        copyWebfile("departifactmodule.js","departifactmodule.js")
         copyWebfile("departifactartifact.js","departifactartifact.js")
     }
 
@@ -77,14 +77,14 @@ class DepServer {
         return result;
     }
 
-    private fun enrichModel(artifactGroups: ArtifactGroups): EnrichedArtifactGroups {
-        // copy artifactGroup
-        val enrichedArtifactsGroups = EnrichedArtifactGroups(
-                artifactGroups.application,
-                artifactGroups.artifactGroups
+    private fun enrichModel(artifactModules: ArtifactModules): EnrichedArtifactModules {
+        // copy artifactModule
+        val enrichedArtifactsModules = EnrichedArtifactModules(
+                artifactModules.application,
+                artifactModules.artifactModules
                         .map {
-                            EnrichedArtifactGroup(
-                                    it.artifactgroup,
+                            EnrichedArtifactModule(
+                                    it.artifactmodule,
                                     null,
                                     it.layers.map {
                                         EnrichedArtifactLayer(
@@ -99,12 +99,12 @@ class DepServer {
                                     })
                         })
         // add parents
-        enrichedArtifactsGroups.artifactGroups.forEach {
-            val artifactGroup = it
-            artifactGroup.artifactgroups = enrichedArtifactsGroups
-            artifactGroup.layers.forEach {
+        enrichedArtifactsModules.artifactModules.forEach {
+            val artifactModule = it
+            artifactModule.artifactmodules = enrichedArtifactsModules
+            artifactModule.layers.forEach {
                 val layer = it
-                layer.artifactGroup = artifactGroup
+                layer.artifactModule = artifactModule
                 layer.artifacts.forEach {
                     val artifact = it
                     artifact.artifactLayer = layer
@@ -113,8 +113,8 @@ class DepServer {
         }
 
         // place all artifacts in a map
-        val allArtifacts = enrichedArtifactsGroups
-                .artifactGroups
+        val allArtifacts = enrichedArtifactsModules
+                .artifactModules
                 .flatMap {
                     it.layers.flatMap {
                         it.artifacts.map { it }
@@ -127,7 +127,7 @@ class DepServer {
             val mapper = ObjectMapper(YAMLFactory())
 
             val artifactDependency = mapper.readValue(it.readText(charset = Charsets.UTF_8), ArtifactDependency::class.java)
-            val artifact = allArtifacts.get("${artifactDependency.groupId}:${artifactDependency.artifactId}")
+            val artifact = allArtifacts.get("${artifactDependency.moduleId}:${artifactDependency.artifactId}")
             if (artifact != null) {
                 artifactDependency.deps.forEach {
                     val depArtifact = allArtifacts.get(it)
@@ -144,7 +144,7 @@ class DepServer {
             artifact.depsFrom = allArtifacts.values.filter { it.depsTo.contains(artifact) }
         }
 
-        return enrichedArtifactsGroups
+        return enrichedArtifactsModules
     }
 
 

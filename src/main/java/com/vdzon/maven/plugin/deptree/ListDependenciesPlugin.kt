@@ -46,24 +46,24 @@ class ListDependenciesPlugin : AbstractMojo() {
         val allDeps = ArrayList<String>()
         processParentAndImportsRecursive(project!!, allDeps)
         writeDeps(allDeps)
-        updateArtifactGroups()
+        updateArtifactModules()
     }
 
-    private fun updateArtifactGroups() {
-        val artifactGroupService = ArtifactGroupService()
-        val yamlFilename = "groups.yaml"
-        val artifactGroups: ArtifactGroups = artifactGroupService.getExistsingOrNewArtifactGroups(yamlFilename, artifactGroupService)
+    private fun updateArtifactModules() {
+        val artifactModuleService = ArtifactModuleService()
+        val yamlFilename = "modules.yaml"
+        val artifactModules: ArtifactModules = artifactModuleService.getExistsingOrNewArtifactModules(yamlFilename, artifactModuleService)
         val artifactName = project!!.groupId + ":" + project.artifactId
-        val artifactExists = artifactGroups.artifactGroups.any { it.layers.any { it.artifacts.any { it.name == artifactName } } }
-        val modifiedGroupsObject = if (!artifactExists) addToUnknownGroup(artifactGroups, artifactName) else artifactGroups
-        writeArtifactGroups(yamlFilename, artifactGroupService, modifiedGroupsObject)
+        val artifactExists = artifactModules.artifactModules.any { it.layers.any { it.artifacts.any { it.name == artifactName } } }
+        val modifiedModulesObject = if (!artifactExists) addToUnknownModule(artifactModules, artifactName) else artifactModules
+        writeArtifactModules(yamlFilename, artifactModuleService, modifiedModulesObject)
     }
 
-    private fun addToUnknownGroup(artifactGroups: ArtifactGroups, artifactName: String): ArtifactGroups {
-        val unknownGroupFound = artifactGroups.artifactGroups.find { it.artifactgroup == "unknown" }
-        val unknownGroup = if (unknownGroupFound != null) unknownGroupFound else ArtifactGroup("unknown")
+    private fun addToUnknownModule(artifactModules: ArtifactModules, artifactName: String): ArtifactModules {
+        val unknownModuleFound = artifactModules.artifactModules.find { it.artifactmodule == "unknown" }
+        val unknownModule = if (unknownModuleFound != null) unknownModuleFound else ArtifactModule("unknown")
 
-        val unknownLayersFound = unknownGroup.layers.find { it.name == "unknown" }
+        val unknownLayersFound = unknownModule.layers.find { it.name == "unknown" }
         val unknownLayer = if (unknownLayersFound != null) unknownLayersFound else ArtifactLayer("unknown")
 
         val modifiedArtifacts = unknownLayer.artifacts.toMutableList();
@@ -71,20 +71,20 @@ class ListDependenciesPlugin : AbstractMojo() {
         modifiedArtifacts.add(Artifact(artifactName))
         val modifiedLayer = ArtifactLayer("unknown", modifiedArtifacts);
 
-        val modifiedLayers = unknownGroup.layers.toMutableList();
+        val modifiedLayers = unknownModule.layers.toMutableList();
         modifiedLayers.filter { it.name == "unknown" }.forEach { modifiedLayers.remove(it) }
         modifiedLayers.add(modifiedLayer)
 
-        val modifiedGroups = artifactGroups.artifactGroups.toMutableList();
-        modifiedGroups.filter { it.artifactgroup == "unknown" }.forEach { modifiedGroups.remove(it) }
-        modifiedGroups.add(ArtifactGroup("unknown", modifiedLayers))
+        val modifiedModules = artifactModules.artifactModules.toMutableList();
+        modifiedModules.filter { it.artifactmodule == "unknown" }.forEach { modifiedModules.remove(it) }
+        modifiedModules.add(ArtifactModule("unknown", modifiedLayers))
 
-        val modifiedGroupsObject = ArtifactGroups(artifactGroups.application, modifiedGroups);
-        return modifiedGroupsObject
+        val modifiedModulesObject = ArtifactModules(artifactModules.application, modifiedModules);
+        return modifiedModulesObject
     }
 
-    private fun writeArtifactGroups(yamlFilename: String, artifactGroupService: ArtifactGroupService, artifactGroups: ArtifactGroups) {
-        File(yamlFilename).writeText(artifactGroupService.serializeArtifactGroups(artifactGroups), charset = Charsets.UTF_8)
+    private fun writeArtifactModules(yamlFilename: String, artifactModuleService: ArtifactModuleService, artifactModules: ArtifactModules) {
+        File(yamlFilename).writeText(artifactModuleService.serializeArtifactModules(artifactModules), charset = Charsets.UTF_8)
     }
 
 
@@ -97,7 +97,7 @@ class ListDependenciesPlugin : AbstractMojo() {
             depList.add(dep)
         }
         var artifactDependency = ArtifactDependency()
-        artifactDependency.groupId=project.groupId
+        artifactDependency.moduleId =project.groupId
         artifactDependency.artifactId=project.artifactId
         artifactDependency.version=project.version
         artifactDependency.absolutePath=project.basedir.absolutePath

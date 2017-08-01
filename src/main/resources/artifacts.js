@@ -69,35 +69,35 @@
     }
 
     function positionArtifacts() {
-        var groupArtifacts = [];
+        var moduleArtifacts = [];
         var artifactCache = createArtifactArray();
         var selectedArtifactObject = artifactCache[selectedArtifact];
         for (i = 0; i < nodes.artifacts.length; i++) {
             var artifact = nodes.artifacts[i];
-            if (artifact.group == selectedGroup) {
-                groupArtifacts.push(artifact);
+            if (artifact.module == selectedModule) {
+                moduleArtifacts.push(artifact);
             }
         }
 
-        var totalArtifacts = groupArtifacts.length;
+        var totalArtifacts = moduleArtifacts.length;
 
 
         // set only the selected artifacts
         switch (state) {
-            case ALL_GROUPS_DIAGRAM:
+            case ALL_MODULES_DIAGRAM:
                 break;
-            case SELECTED_GROUPS_DIAGRAM:
+            case SELECTED_MODULES_DIAGRAM:
                 break;
-            case GROUP_ARTIFACTS_DIAGRAM:
-                for (i = 0; i < groupArtifacts.length; i++) {
+            case MODULE_ARTIFACTS_DIAGRAM:
+                for (i = 0; i < moduleArtifacts.length; i++) {
                     var angle = (360 / totalArtifacts) * i;
-                    var x = offset + RADIUS_GROUP_ARTIFACT * Math.cos(angle * Math.PI / 180);
-                    var y = offset + RADIUS_GROUP_ARTIFACT * Math.sin(angle * Math.PI / 180);
-                    groupArtifacts[i].x = x;
-                    groupArtifacts[i].y = y;
-                    groupArtifacts[i].angle = angle;
-                    groupArtifacts[i].opacity = 1;
-                    groupArtifacts[i].isVisible = true;
+                    var x = offset + RADIUS_MODULE_ARTIFACT * Math.cos(angle * Math.PI / 180);
+                    var y = offset + RADIUS_MODULE_ARTIFACT * Math.sin(angle * Math.PI / 180);
+                    moduleArtifacts[i].x = x;
+                    moduleArtifacts[i].y = y;
+                    moduleArtifacts[i].angle = angle;
+                    moduleArtifacts[i].opacity = 1;
+                    moduleArtifacts[i].isVisible = true;
                 }
                 break;
             case SELECTED_ARTIFACT_DIAGRAM:
@@ -122,15 +122,15 @@
                 var processData = {};
                 processData.depFromIndex = 0;
                 processData.depToIndex = 0;
-                processData.artifactsToList = groupArtifacts;
+                processData.artifactsToList = moduleArtifacts;
                 processData.artifactsDepsFrom = artifactsDepsFrom;
                 processData.artifactsDepsTo = artifactsDepsTo;
                 processData.selectedArtifactObject = selectedArtifactObject;
 
 
                 var processedArtifacts = {};
-                for (i = 0; i < groupArtifacts.length; i++) {
-                    var artifact = groupArtifacts[i];
+                for (i = 0; i < moduleArtifacts.length; i++) {
+                    var artifact = moduleArtifacts[i];
                     processedArtifacts[artifact.name] = artifact;
                     processArtifact(artifact, processData);
                 }
@@ -155,7 +155,7 @@
             artifact.y = DEPS_FROM_Y;
             artifact.angle = -45;
             artifact.opacity = 0.3;
-            if (artifact.group == processData.selectedArtifactObject.group){
+            if (artifact.module == processData.selectedArtifactObject.module){
                 artifact.opacity = 1;
             }
             artifact.isVisible = true;
@@ -166,7 +166,7 @@
             artifact.y = DEPS_TO_Y;
             artifact.angle = 45;
             artifact.opacity = 0.3;
-            if (artifact.group == processData.selectedArtifactObject.group){
+            if (artifact.module == processData.selectedArtifactObject.module){
                 artifact.opacity = 1;
             }
             artifact.isVisible = true;

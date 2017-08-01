@@ -28,10 +28,10 @@
             .attr('opacity', function(d) { if (d.highlight) return 1; else if (d.dimmed) return 0; else return d.opacity });
     }
 
-    function centerOfGroup(group){
+    function centerOfModule(module){
         var point = {};
-        point.x = group.x+group.width/2;
-        point.y = group.y+group.height/2;
+        point.x = module.x+module.width/2;
+        point.y = module.y+module.height/2;
         return point;
     }
 

@@ -41,12 +41,12 @@
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="jsondata.js"></script>
-<script src="groups.js"></script>
+<script src="modules.js"></script>
 <script src="artifacts.js"></script>
 <script src="depbase.js"></script>
-<script src="depgroupgroup.js"></script>
-<script src="depgroupartifact.js"></script>
-<script src="departifactgroup.js"></script>
+<script src="depmodulemodule.js"></script>
+<script src="depmoduleartifact.js"></script>
+<script src="departifactmodule.js"></script>
 <script src="departifactartifact.js"></script>
 <script>
 
@@ -54,20 +54,20 @@
         width = +svg.attr("width"),
         height = +svg.attr("height");
 
-    var ALL_GROUPS_DIAGRAM = 0;
-    var SELECTED_GROUPS_DIAGRAM = 1;
-    var GROUP_ARTIFACTS_DIAGRAM = 2;
+    var ALL_MODULES_DIAGRAM = 0;
+    var SELECTED_MODULES_DIAGRAM = 1;
+    var MODULE_ARTIFACTS_DIAGRAM = 2;
     var SELECTED_ARTIFACT_DIAGRAM = 3;
 
-    var state = ALL_GROUPS_DIAGRAM;
-    var selectedGroup = "";
+    var state = ALL_MODULES_DIAGRAM;
+    var selectedModule = "";
     var selectedArtifact = "";
-    var totalGroups = nodes.groups.length;
-    var RADIUS_GROUPS = 250;
-    var RADIUS_GROUP_ARTIFACT = 150;
+    var totalModules = nodes.modules.length;
+    var RADIUS_MODULES = 250;
+    var RADIUS_MODULE_ARTIFACT = 150;
     var offset = 400;
-    var GROUPS_SMALL_WIDTH = 25;
-    var GROUPS_SMALL_HEIGHT = 25;
+    var MODULES_SMALL_WIDTH = 25;
+    var MODULES_SMALL_HEIGHT = 25;
 
     var DEPS_FROM_Y = 200;
     var DEPS_TO_Y = 500;
@@ -84,18 +84,18 @@
 
     defineArrow();
     resetArtifacts();
-    positionGroups();
+    positionModules();
     positionArtifacts();
-    positionDepGroupGroups();
+    positionDepModuleModules();
     positionDepArtifactArtifact();
-    positionDepGroupArtifact();
-    positionDepArtifactGroup();
-    initialPaintGroups();
+    positionDepModuleArtifact();
+    positionDepArtifactModule();
+    initialPaintModules();
     initialPaintArtifacts();
-    initialPaintDepGroupGroup();
+    initialPaintDepModuleModule();
     initialPaintDepArtifactArtifact();
-    initialPaintDepGroupArtifact();
-    initialPaintDepArtifactGroup();
+    initialPaintDepModuleArtifact();
+    initialPaintDepArtifactModule();
     initialPaintButtonsAndLabels();
     initialPaintManualText();
     hideBackbutton();
@@ -104,7 +104,7 @@
     function pushState(){
         var currentState = {};
         currentState.state = state;
-        currentState.selectedGroup = selectedGroup;
+        currentState.selectedModule = selectedModule;
         currentState.selectedArtifact = selectedArtifact;
         stateHistory.push(currentState);
     }
@@ -114,7 +114,7 @@
         if (stateHistory.length>0) {
             var lastState = stateHistory.pop();
             state = lastState.state;
-            selectedGroup = lastState.selectedGroup;
+            selectedModule = lastState.selectedModule;
             selectedArtifact = lastState.selectedArtifact;
         }
     }
@@ -159,34 +159,34 @@
         }
 
         switch (state) {
-            case ALL_GROUPS_DIAGRAM:
-                var clickedGroup = findSelectedGroup(coords);
-                if (clickedGroup != null) {
+            case ALL_MODULES_DIAGRAM:
+                var clickedModule = findSelectedModule(coords);
+                if (clickedModule != null) {
                     pushState();
-                    state = SELECTED_GROUPS_DIAGRAM;
-                    selectedGroup = clickedGroup;
+                    state = SELECTED_MODULES_DIAGRAM;
+                    selectedModule = clickedModule;
                 }
                 break;
-            case SELECTED_GROUPS_DIAGRAM:
-                var clickedGroup = findSelectedGroup(coords);
+            case SELECTED_MODULES_DIAGRAM:
+                var clickedModule = findSelectedModule(coords);
 
                 if (d3.event.ctrlKey) {
-                    if (clickedGroup != null ){
-                        expandGroup(clickedGroup);
+                    if (clickedModule != null ){
+                        expandModule(clickedModule);
                     }
                 }
                 else{
-                    if (clickedGroup == selectedGroup ) {
+                    if (clickedModule == selectedModule ) {
                         pushState();
-                        state = GROUP_ARTIFACTS_DIAGRAM;
+                        state = MODULE_ARTIFACTS_DIAGRAM;
                     }
-                    else if (clickedGroup != null ){
+                    else if (clickedModule != null ){
                         pushState();
-                        selectedGroup = clickedGroup;
+                        selectedModule = clickedModule;
                     }
                 }
                 break;
-            case GROUP_ARTIFACTS_DIAGRAM:
+            case MODULE_ARTIFACTS_DIAGRAM:
                 var clickedArtifact = findSelectedArtifact(coords);
                 if (clickedArtifact != null) {
                     pushState();
@@ -207,18 +207,18 @@
 
     function repaintAll(){
         resetArtifacts();
-        positionGroups();
+        positionModules();
         positionArtifacts();
-        positionDepGroupGroups();
+        positionDepModuleModules();
         positionDepArtifactArtifact();
-        positionDepGroupArtifact();
-        positionDepArtifactGroup();
-        repaintGroups();
+        positionDepModuleArtifact();
+        positionDepArtifactModule();
+        repaintModules();
         repaintArtifacts();
-        repaintDepGroupGroup();
+        repaintDepModuleModule();
         repaintDepArtifactArtifact();
-        repaintDepGroupArtifact();
-        repaintDepArtifactGroup();
+        repaintDepModuleArtifact();
+        repaintDepArtifactModule();
         if (stateHistory.length>0){
             showBackbutton();
         }
@@ -226,7 +226,7 @@
             hideBackbutton();
         }
 
-        if (state == SELECTED_GROUPS_DIAGRAM){
+        if (state == SELECTED_MODULES_DIAGRAM){
             showManualText();
         }
         else{
@@ -235,15 +235,15 @@
 
     }
 
-    function findSelectedGroup(coords) {
-        for (i = 0; i < nodes.groups.length; i++) {
-            var group = nodes.groups[i];
+    function findSelectedModule(coords) {
+        for (i = 0; i < nodes.modules.length; i++) {
+            var module = nodes.modules[i];
             var mouseX = coords[0];
             var mouseY = coords[1];
-            var xFit = (mouseX>group.x) && (mouseX<group.x+group.width)
-            var yFit = (mouseY>group.y) && (mouseY<group.y+group.height)
+            var xFit = (mouseX>module.x) && (mouseX<module.x+module.width)
+            var yFit = (mouseY>module.y) && (mouseY<module.y+module.height)
             if (xFit && yFit) {
-                return group.name;
+                return module.name;
             }
         }
         return null;
@@ -270,21 +270,21 @@
         }
         return null;
     }
-    function expandGroup(groupname){
-        for (i = 0; i < nodes.groups.length; i++) {
-            var group = nodes.groups[i];
-            if (group.name == groupname){
-                group.expanded = !group.expanded;
+    function expandModule(modulename){
+        for (i = 0; i < nodes.modules.length; i++) {
+            var module = nodes.modules[i];
+            if (module.name == modulename){
+                module.expanded = !module.expanded;
             }
         }
     }
-    function createGroupArray(){
-        var allGroups = {};
-        for (i = 0; i < nodes.groups.length; i++) {
-            var group = nodes.groups[i];
-            allGroups[group.name] = group;
+    function createModuleArray(){
+        var allModules = {};
+        for (i = 0; i < nodes.modules.length; i++) {
+            var module = nodes.modules[i];
+            allModules[module.name] = module;
         }
-        return allGroups;
+        return allModules;
     }
 
     function createArtifactArray(){
@@ -308,9 +308,9 @@
         return point;
     }
 
-    function getEdgeOfGroup(group, otherEdge){
-        var x = group.x+group.width/2;
-        var y = group.y+group.height/2;
+    function getEdgeOfModule(module, otherEdge){
+        var x = module.x+module.width/2;
+        var y = module.y+module.height/2;
         var xOffset = x - otherEdge.x;
         var yOffset = y - otherEdge.y;
         var leng = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
@@ -323,8 +323,8 @@
     }
 
     function highlightArtifact(artifactName){
-        for (i = 0; i < nodes.depGroupArtifacts.length; i++) {
-            var dep = nodes.depGroupArtifacts[i];
+        for (i = 0; i < nodes.depModuleArtifacts.length; i++) {
+            var dep = nodes.depModuleArtifacts[i];
             if (dep.to != artifactName && artifactName!=""){
                 dep.highlight = false;
                 dep.dimmed = true;
@@ -334,8 +334,8 @@
                 dep.dimmed = false;
             }
         }
-        for (i = 0; i < nodes.depArtifactGroups.length; i++) {
-            var dep = nodes.depArtifactGroups[i];
+        for (i = 0; i < nodes.depArtifactModules.length; i++) {
+            var dep = nodes.depArtifactModules[i];
             if (dep.from != artifactName && artifactName!=""){
                 dep.highlight = false;
                 dep.dimmed = true;
@@ -358,8 +358,8 @@
         }
 
         repaintDepArtifactArtifact();
-        repaintDepGroupArtifact();
-        repaintDepArtifactGroup();
+        repaintDepModuleArtifact();
+        repaintDepArtifactModule();
 
     }
 
@@ -404,7 +404,7 @@
         svg
             .append("text")
             .attr("class", "manualText")
-            .text("ctrl-click on group to expand to artifacts")
+            .text("ctrl-click on module to expand to artifacts")
             .attr("x", 10)
             .attr("y", 50);
         svg
